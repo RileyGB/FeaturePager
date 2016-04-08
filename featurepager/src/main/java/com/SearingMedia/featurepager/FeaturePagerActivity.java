@@ -1,12 +1,10 @@
 package com.SearingMedia.featurepager;
 
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -19,7 +17,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -29,9 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public abstract class AppIntro extends AppCompatActivity {
+public abstract class FeaturePagerActivity extends AppCompatActivity {
     public final static int DEFAULT_COLOR = 1;
     private static final int DEFAULT_SCROLL_DURATION_FACTOR = 1;
+    private static String TAG = "AppIntro1";
 
     protected PagerAdapter mPagerAdapter;
     protected AppIntroViewPager pager;
@@ -48,7 +46,6 @@ public abstract class AppIntro extends AppCompatActivity {
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
     protected View skipButton;
-    protected View nextButton;
     protected View doneButton;
     protected int savedCurrentItem;
     protected ArrayList<PermissionObject> permissionsArray = new ArrayList<>();
@@ -71,7 +68,6 @@ public abstract class AppIntro extends AppCompatActivity {
         setContentView(R.layout.intro_layout);
 
         skipButton = findViewById(R.id.skip);
-        nextButton = findViewById(R.id.next);
         doneButton = findViewById(R.id.done);
         mVibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), fragments);
@@ -89,37 +85,6 @@ public abstract class AppIntro extends AppCompatActivity {
                     mVibrator.vibrate(vibrateIntensity);
                 }
                 onSkipPressed();
-            }
-        });
-
-        nextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(@NonNull View v) {
-                if (isVibrateOn) {
-                    mVibrator.vibrate(vibrateIntensity);
-                }
-
-                boolean requestPermission = false;
-                int position = 0;
-
-                for (int i = 0; i < permissionsArray.size(); i++) {
-                    requestPermission = pager.getCurrentItem() + 1 == permissionsArray.get(i).getPosition();
-                    position = i;
-                    break;
-                }
-
-                if (requestPermission) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(permissionsArray.get(position).getPermission(), PERMISSIONS_REQUEST_ALL_PERMISSIONS);
-                        permissionsArray.remove(position);
-                    } else {
-                        pager.setCurrentItem(pager.getCurrentItem() + 1);
-                        onNextPressed();
-                    }
-                } else {
-                    pager.setCurrentItem(pager.getCurrentItem() + 1);
-                    onNextPressed();
-                }
             }
         });
 
@@ -149,16 +114,10 @@ public abstract class AppIntro extends AppCompatActivity {
 
                 // Allow the swipe to be re-enabled if a user swipes to a previous slide. Restore
                 // state of progress button depending on global progress button setting
-                if (!pager.isNextPagingEnabled()) {
-                    if (pager.getCurrentItem() != pager.getLockPage()) {
-                        setProgressButtonEnabled(baseProgressButtonEnabled);
-                        pager.setNextPagingEnabled(true);
-                    } else {
-                        setProgressButtonEnabled(progressButtonEnabled);
-                    }
-                } else {
-                    setProgressButtonEnabled(progressButtonEnabled);
+                if (!pager.isNextPagingEnabled() && pager.getCurrentItem() != pager.getLockPage()) {
+                    pager.setNextPagingEnabled(true);
                 }
+
                 setButtonState(skipButton, skipButtonEnabled);
                 onSlideChanged();
             }
@@ -175,9 +134,7 @@ public abstract class AppIntro extends AppCompatActivity {
         init(savedInstanceState);
         slidesNumber = fragments.size();
 
-        if (slidesNumber == 1) {
-            setProgressButtonEnabled(progressButtonEnabled);
-        } else {
+        if (slidesNumber != 1) {
             initController();
         }
     }
@@ -284,28 +241,6 @@ public abstract class AppIntro extends AppCompatActivity {
     }
 
     /**
-     * Setting to to display or hide the Next or Done button. This is a static setting and
-     * button state is maintained across slides until explicitly changed.
-     *
-     * @param progressButtonEnabled Set true to display. False to hide.
-     */
-    public void setProgressButtonEnabled(boolean progressButtonEnabled) {
-        this.progressButtonEnabled = progressButtonEnabled;
-        if (progressButtonEnabled) {
-            if (pager.getCurrentItem() == slidesNumber - 1) {
-                setButtonState(nextButton, false);
-                setButtonState(doneButton, true);
-            } else {
-                setButtonState(nextButton, true);
-                setButtonState(doneButton, false);
-            }
-        } else {
-            setButtonState(nextButton, false);
-            setButtonState(doneButton, false);
-        }
-    }
-
-    /**
      * Override viewpager bar color
      *
      * @param color your color resource
@@ -315,17 +250,6 @@ public abstract class AppIntro extends AppCompatActivity {
         bottomBar.setBackgroundColor(color);
     }
     
-    /**
-     * Override next button arrow color
-     * 
-     * @param color your color 
-     * 
-     */
-    public void setNextArrowColor(@ColorInt final int color) {
-        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
-        nextButton.setColorFilter(color);
-    }
-
     /**
      * Override separator color
      *
@@ -377,17 +301,6 @@ public abstract class AppIntro extends AppCompatActivity {
     }
 
     /**
-     * Override Next button
-     *
-     * @param imageNextButton your drawable resource
-     */
-    public void setImageNextButton(@DrawableRes final Drawable imageNextButton) {
-        final ImageView nextButton = (ImageView) findViewById(R.id.next);
-        nextButton.setImageDrawable(imageNextButton);
-
-    }
-
-    /**
      * Allows the user to set the nav bar color of their app intro
      *
      * @param Color string form of color in 3 or 6 digit hex form (#ffffff)
@@ -435,16 +348,6 @@ public abstract class AppIntro extends AppCompatActivity {
     }
 
     /**
-     * Shows or hides Done button, replaced with setProgressButtonEnabled
-     *
-     * @deprecated use {@link #setProgressButtonEnabled(boolean)} instead.
-     */
-    @Deprecated
-    public void showDoneButton(boolean showDone) {
-        setProgressButtonEnabled(showDone);
-    }
-
-    /**
      * sets vibration when buttons are pressed
      *
      * @param vibrationEnabled on/off
@@ -471,7 +374,7 @@ public abstract class AppIntro extends AppCompatActivity {
     }
 
     /**
-     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link AppIntro} instead of the
+     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link FeaturePagerActivity} instead of the
      * default one.
      *
      * @param controller The controller to use
@@ -544,45 +447,6 @@ public abstract class AppIntro extends AppCompatActivity {
         }
     }
 
-    /**
-     * Setting to disable forward swiping right on current page and allow swiping left. If a swipe
-     * left occurs, the lock state is reset and swiping is re-enabled. (one shot disable) This also
-     * hides/shows the Next and Done buttons accordingly.
-     *
-     * @param lockEnable Set true to disable forward swiping. False to enable.
-     */
-    public void setNextPageSwipeLock(boolean lockEnable) {
-        if (lockEnable) {
-            // if locking, save current progress button visibility
-            baseProgressButtonEnabled = progressButtonEnabled;
-            setProgressButtonEnabled(!lockEnable);
-        } else {
-            // if unlocking, restore original button visibility
-            setProgressButtonEnabled(baseProgressButtonEnabled);
-        }
-        pager.setNextPagingEnabled(!lockEnable);
-    }
-
-    /**
-     * Setting to disable swiping left and right on current page. This also
-     * hides/shows the Next and Done buttons accordingly.
-     *
-     * @param lockEnable Set true to disable forward swiping. False to enable.
-     */
-    public void setSwipeLock(boolean lockEnable) {
-        if (lockEnable) {
-            // if locking, save current progress button visibility
-            baseProgressButtonEnabled = progressButtonEnabled;
-            //setProgressButtonEnabled(!lockEnable);
-        } else {
-            // if unlocking, restore original button visibility
-            setProgressButtonEnabled(baseProgressButtonEnabled);
-        }
-        pager.setPagingEnabled(!lockEnable);
-    }
-
-    private static String TAG = "AppIntro1";
-
     public void askForPermissions(String[] permissions, int slidesNumber) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (slidesNumber == 0) {
@@ -590,7 +454,6 @@ public abstract class AppIntro extends AppCompatActivity {
             } else {
                 PermissionObject permission = new PermissionObject(permissions, slidesNumber);
                 permissionsArray.add(permission);
-                setSwipeLock(true);
             }
         }
     }

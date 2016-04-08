@@ -6,7 +6,7 @@ import android.view.View;
 
 /**
  * A controller that is used to provide custom indicator implementations and to control their behaviour.
- * This is used for {@link AppIntro#setCustomIndicator(IndicatorController)} and
+ * This is used for {@link FeaturePagerActivity#setCustomIndicator(IndicatorController)} and
  * {@link AppIntro2#setCustomIndicator(IndicatorController)}
  */
 public interface IndicatorController {
