@@ -14,7 +14,7 @@ ext {
     siteUrl = 'https://github.com/RileyGB/FeaturePager'
     gitUrl = 'https://github.com/RileyGB/FeaturePager.git'
 
-    libraryVersion = '0.1.3'
+    libraryVersion = '0.1.4'
 
     developerId = 'rackerman'
     developerName = 'Riley Ackerman'

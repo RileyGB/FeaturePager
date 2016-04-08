@@ -17,12 +17,11 @@ public class AppIntroFragment extends Fragment {
     private static final String ARG_DESC = "desc";
     private static final String ARG_DRAWABLE = "drawable";
     private static final String ARG_BG_COLOR = "bg_color";
-    private static final String ARG_TITLE_COLOR = "title_color";
     private static final String PAGE = "page";
 
     private int pageNumber;
 
-    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int titleColor, int page) {
+    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int page) {
         AppIntroFragment sampleSlide = new AppIntroFragment();
 
         Bundle args = new Bundle();
@@ -30,14 +29,13 @@ public class AppIntroFragment extends Fragment {
         args.putCharSequence(ARG_DESC, description);
         args.putInt(ARG_DRAWABLE, imageDrawable);
         args.putInt(ARG_BG_COLOR, bgColor);
-        args.putInt(ARG_TITLE_COLOR, titleColor);
         args.putInt(PAGE, page);
         sampleSlide.setArguments(args);
 
         return sampleSlide;
     }
 
-    private int drawable, bgColor, titleColor;
+    private int drawable, bgColor;
     private CharSequence title, description;
 
     public AppIntroFragment() {
@@ -52,7 +50,6 @@ public class AppIntroFragment extends Fragment {
             title = getArguments().getCharSequence(ARG_TITLE);
             description = getArguments().getCharSequence(ARG_DESC);
             bgColor = getArguments().getInt(ARG_BG_COLOR);
-            titleColor = getArguments().containsKey(ARG_TITLE_COLOR) ? getArguments().getInt(ARG_TITLE_COLOR) : 0;
             pageNumber = getArguments().getInt(PAGE);
         }
     }
@@ -67,10 +64,6 @@ public class AppIntroFragment extends Fragment {
         LinearLayout mainLinearLayout = (LinearLayout) view.findViewById(R.id.main);
 
         titleTextView.setText(title);
-        if (titleColor != 0) {
-            titleTextView.setTextColor(titleColor);
-        }
-
         descriptionTextView.setText(description);
 
         imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawable));
