@@ -18,14 +18,11 @@ public class AppIntroFragment extends Fragment {
     private static final String ARG_DRAWABLE = "drawable";
     private static final String ARG_BG_COLOR = "bg_color";
     private static final String ARG_TITLE_COLOR = "title_color";
-    private static final String ARG_DESC_COLOR = "desc_color";
+    private static final String PAGE = "page";
 
-    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor) {
-        return newInstance(title, description, imageDrawable, bgColor, 0, 0);
-    }
+    private int pageNumber;
 
-
-    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int titleColor, int descColor) {
+    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int titleColor, int page) {
         AppIntroFragment sampleSlide = new AppIntroFragment();
 
         Bundle args = new Bundle();
@@ -34,13 +31,13 @@ public class AppIntroFragment extends Fragment {
         args.putInt(ARG_DRAWABLE, imageDrawable);
         args.putInt(ARG_BG_COLOR, bgColor);
         args.putInt(ARG_TITLE_COLOR, titleColor);
-        args.putInt(ARG_DESC_COLOR, descColor);
+        args.putInt(PAGE, page);
         sampleSlide.setArguments(args);
 
         return sampleSlide;
     }
 
-    private int drawable, bgColor, titleColor, descColor;
+    private int drawable, bgColor, titleColor;
     private CharSequence title, description;
 
     public AppIntroFragment() {
@@ -56,34 +53,32 @@ public class AppIntroFragment extends Fragment {
             description = getArguments().getCharSequence(ARG_DESC);
             bgColor = getArguments().getInt(ARG_BG_COLOR);
             titleColor = getArguments().containsKey(ARG_TITLE_COLOR) ? getArguments().getInt(ARG_TITLE_COLOR) : 0;
-            descColor = getArguments().containsKey(ARG_DESC_COLOR) ? getArguments().getInt(ARG_DESC_COLOR) : 0;
+            pageNumber = getArguments().getInt(PAGE);
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_intro, container, false);
-        TextView t = (TextView) v.findViewById(R.id.title);
-        TextView d = (TextView) v.findViewById(R.id.description);
-        ImageView i = (ImageView) v.findViewById(R.id.image);
-        LinearLayout m = (LinearLayout) v.findViewById(R.id.main);
+        View view = inflater.inflate(R.layout.fragment_intro, container, false);
+        TextView titleTextView = (TextView) view.findViewById(R.id.title);
+        TextView descriptionTextView = (TextView) view.findViewById(R.id.description);
+        ImageView imageView = (ImageView) view.findViewById(R.id.image);
+        LinearLayout mainLinearLayout = (LinearLayout) view.findViewById(R.id.main);
 
-
-        t.setText(title);
+        titleTextView.setText(title);
         if (titleColor != 0) {
-            t.setTextColor(titleColor);
+            titleTextView.setTextColor(titleColor);
         }
 
-        d.setText(description);
-        if (descColor != 0) {
-            d.setTextColor(descColor);
-        }
-        
-        i.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawable));
-        m.setBackgroundColor(bgColor);
+        descriptionTextView.setText(description);
 
-        return v;
+        imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawable));
+        mainLinearLayout.setBackgroundColor(bgColor);
+
+        view.setTag(pageNumber);
+
+        return view;
     }
 
 }

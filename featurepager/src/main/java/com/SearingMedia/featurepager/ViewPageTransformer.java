@@ -89,19 +89,35 @@ class ViewPageTransformer implements ViewPager.PageTransformer {
                 }
                 break;
             case FADE:
-                if (position <= -1.0F || position >= 1.0F) {
-                    page.setAlpha(0.0F);
-                    page.setClickable(false);
-                } else if (position == 0.0F) {
-                    page.setAlpha(1.0F);
-                    page.setClickable(true);
+                int pagePosition = (int) page.getTag();
+                int pageWidth = page.getWidth();
+                float pageWidthTimesPosition = pageWidth * position;
+                float absPosition = Math.abs(position);
+
+                if (position <= -1.0f || position >= 1.0f) {
+                    // The page is not visible. This is a good place to stop
+                    // any potential work / animations you may have running.
+
+                } else if (position == 0.0f) {
+                    // The page is selected. This is a good time to reset Views
+                    // after animations as you can't always count on the PageTransformer
+                    // callbacks to match up perfectly.
+
                 } else {
-                    // position is between -1.0F & 0.0F OR 0.0F & 1.0F
-                    page.setAlpha(1.0F - Math.abs(position));
+                    View title = page.findViewById(R.id.title);
+                    title.setAlpha(1.0f - absPosition);
+
+                    View description = page.findViewById(R.id.description);
+                    description.setTranslationY(-pageWidthTimesPosition / 2f);
+                    description.setAlpha(1.0f - absPosition);
+
+                    View image = page.findViewById(R.id.image);
+
+                    if (pagePosition == 0 && image != null) {
+                        image.setAlpha(1.0f - absPosition);
+                        image.setTranslationX(-pageWidthTimesPosition * 1.5f);
+                    }
                 }
-
-
-
             default:
                 return;
         }
