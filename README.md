@@ -1,12 +1,5 @@
-[![Maven Central](https://img.shields.io/badge/maven%20central-appintro-green.svg)](http://search.maven.org/#browse%7C2137414099)
-[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-AppIntro-green.svg?style=flat)](https://android-arsenal.com/details/1/1939)
-[![Android Gems](http://www.android-gems.com/badge/PaoloRotolo/AppIntro.svg?branch=master)](http://www.android-gems.com/lib/PaoloRotolo/AppIntro)
-
-<p>Sample App:</p>
-<a href="https://play.google.com/store/apps/details?id=paolorotolo.github.com.appintroexample&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge-border.png" width="300" /></a>
-
-# AppIntro
-AppIntro is an Android Library that helps you make a **cool intro** for your app, like the ones in Google apps.
+# FeaturePager
+FeaturePager is an Android Library that helps you make a **cool feature activity** for your app, like the ones in Google apps.
 
 *Watch YouTube video [here](https://www.youtube.com/watch?v=OlAugnH3jFY&feature=youtu.be).*
 
@@ -26,10 +19,10 @@ dependencies {
 }
 ```
 
-Create a new **Activity that extends AppIntro**:
+Create a new **Activity that extends FeaturePagerActivity**:
 
 ```java
-public class MyIntro extends AppIntro {
+public class MyIntro extends FeaturePagerActivity {
 
     // Please DO NOT override onCreate. Use init.
     @Override
