@@ -14,7 +14,7 @@
     <string name="library_appintro_isOpenSource">true</string>
     <string name="library_appintro_repositoryLink">https://github.com/PaoloRotolo/AppIntro</string>
     <!-- ClassPath for autoDetect section -->
-    <string name="library_appintro_classPath">com.github.paolorotolo.appintro</string>
+    <string name="library_appintro_classPath">com.SearingMedia.featurepager</string>
     <!-- License section -->
     <string name="library_appintro_licenseId">apache_2_0</string>
     <!-- Custom variables section -->

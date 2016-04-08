@@ -3,11 +3,11 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:background="#222222">
-        <com.github.paolorotolo.appintro.AppIntroViewPager
+        <com.SearingMedia.featurepager.AppIntroViewPager
             android:id="@+id/view_pager"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
-        </com.github.paolorotolo.appintro.AppIntroViewPager>
+        </com.SearingMedia.featurepager.AppIntroViewPager>
         <LinearLayout
             android:id="@+id/bottom"
             android:background="#00000000"
