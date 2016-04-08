@@ -61,6 +61,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
 
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
+        onPreCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         super.onCreate(savedInstanceState);
@@ -215,6 +216,8 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     public void setOffScreenPageLimit(int limit) {
         pager.setOffscreenPageLimit(limit);
     }
+
+    public abstract void onPreCreate(@Nullable Bundle savedInstanceState);
 
     public abstract void init(@Nullable Bundle savedInstanceState);
 
