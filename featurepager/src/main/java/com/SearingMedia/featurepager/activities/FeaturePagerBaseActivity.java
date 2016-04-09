@@ -30,7 +30,6 @@ import com.SearingMedia.featurepager.R;
 import com.SearingMedia.featurepager.controllers.DefaultIndicatorController;
 import com.SearingMedia.featurepager.controllers.IndicatorControllerInterface;
 import com.SearingMedia.featurepager.controllers.ProgressIndicatorController;
-import com.SearingMedia.featurepager.fragments.INumberedFragment;
 import com.SearingMedia.featurepager.permissions.PermissionObject;
 import com.SearingMedia.featurepager.transformers.TransformerType;
 import com.SearingMedia.featurepager.transformers.ViewPageTransformer;
@@ -315,10 +314,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public void addSlide(@NonNull Fragment fragment) {
         fragmentsList.add(fragment);
-
-        if(fragment instanceof INumberedFragment) {
-            ((INumberedFragment) fragment).setPageNumber(fragmentsList.size());
-        }
 
         featurePagerAdapter.notifyDataSetChanged();
     }

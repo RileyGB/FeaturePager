@@ -14,18 +14,16 @@ import android.widget.TextView;
 
 import com.SearingMedia.featurepager.R;
 
-public class FeaturePagerFragment extends Fragment implements INumberedFragment {
+public class FeaturePagerFragment extends Fragment {
     // Constants
     private static final String ARG_TITLE = "title";
     private static final String ARG_DESC = "desc";
     private static final String ARG_DRAWABLE = "drawable";
-    private static final String PAGE = "page";
 
     // Variables
     private int drawableResId;
     private CharSequence title;
     private CharSequence description;
-    private int pageNumber;
 
     // **********************************
     // Constructor
@@ -60,7 +58,6 @@ public class FeaturePagerFragment extends Fragment implements INumberedFragment 
             drawableResId = getArguments().getInt(ARG_DRAWABLE);
             title = getArguments().getCharSequence(ARG_TITLE);
             description = getArguments().getCharSequence(ARG_DESC);
-            pageNumber = getArguments().getInt(PAGE);
         }
     }
 
@@ -77,18 +74,6 @@ public class FeaturePagerFragment extends Fragment implements INumberedFragment 
         descriptionTextView.setText(description);
         imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawableResId));
 
-        fragmentView.setTag(pageNumber);
-
         return fragmentView;
-    }
-
-    // **********************************
-    // Setters
-    // **********************************
-    @Override
-    public void setPageNumber(int pageNumber) {
-        Bundle bundle = getArguments();
-        bundle.putInt(PAGE, pageNumber);
-        setArguments(bundle);
     }
 }

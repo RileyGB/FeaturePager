@@ -124,9 +124,6 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void setFadeTransform(View parentView, float position) {
-        int pagePosition = (int) parentView.getTag();
-        int pageWidth = parentView.getWidth();
-        float pageWidthTimesPosition = pageWidth * position;
         float absPosition = Math.abs(position);
 
         if (position <= -1.0f || position >= 1.0f) {
@@ -135,32 +132,31 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
             setAllViewsVisible(parentView);
         } else {
             fadeTransformTitle(parentView, absPosition);
-            fadeTransformDescription(parentView, pageWidthTimesPosition, absPosition);
-            fadeTransformImage(parentView, pagePosition, pageWidthTimesPosition, absPosition);
+            fadeTransformDescription(parentView, absPosition);
+            fadeTransformImage(parentView, absPosition);
         }
     }
 
     private void fadeTransformTitle(View parentView, float absPosition) {
         View titleTextView = parentView.findViewById(R.id.title);
-        if(titleTextView != null) {
+
+        if (titleTextView != null) {
             titleTextView.setAlpha(1.0f - absPosition);
         }
     }
 
-    private void fadeTransformDescription(View parentView, float pageWidthTimesPosition, float absPosition) {
+    private void fadeTransformDescription(View parentView, float absPosition) {
         View descriptionTextView = parentView.findViewById(R.id.description);
 
-        if(descriptionTextView != null) {
-            descriptionTextView.setTranslationX(-pageWidthTimesPosition * 1.5f);
+        if (descriptionTextView != null) {
             descriptionTextView.setAlpha(1.0f - absPosition);
         }
     }
 
-    private void fadeTransformImage(View parentView, int pagePosition, float pageWidthTimesPosition, float absPosition) {
+    private void fadeTransformImage(View parentView, float absPosition) {
         View imageView = parentView.findViewById(R.id.image);
 
-        if (pagePosition == 0 && imageView != null) {
-            imageView.setTranslationX(-pageWidthTimesPosition * 1.5f);
+        if (imageView != null) {
             imageView.setAlpha(1.0f - absPosition);
         }
     }
@@ -188,13 +184,13 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void setViewVisible(View view) {
-        if(view != null) {
+        if (view != null) {
             view.setAlpha(1.0f);
         }
     }
 
     private void setViewInvisible(View view) {
-        if(view != null) {
+        if (view != null) {
             view.setAlpha(0.0f);
         }
     }
