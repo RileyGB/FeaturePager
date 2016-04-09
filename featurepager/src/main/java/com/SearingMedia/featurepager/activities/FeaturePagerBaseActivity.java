@@ -51,7 +51,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected FeaturePagerAdapter featurePagerAdapter;
     protected FeaturePagerViewPager pager;
     protected List<Fragment> fragments = new Vector<>();
-    protected IndicatorControllerInterface mController;
+    protected IndicatorControllerInterface indicatorController;
     protected boolean skipButtonEnabled = true;
     protected boolean isNextButtonEnabled = true;
     protected boolean baseProgressButtonEnabled = true;
@@ -98,28 +98,93 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         super.onCreate(savedInstanceState);
-
         setContentView(getLayoutId());
 
+        bindViews();
+        initializePagerAdapter();
+        restoreLockStateFromBundle(savedInstanceState);
+        setButtonClickListeners();
+        initializeViewPager();
+        setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
+        init(savedInstanceState);
+        initializeSlides();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putBoolean("baseProgressButtonEnabled", baseProgressButtonEnabled);
+        outState.putBoolean("progressButtonEnabled", progressButtonEnabled);
+        outState.putBoolean("skipButtonEnabled", skipButtonEnabled);
+        outState.putBoolean("nextButtonEnabled", skipButtonEnabled);
+        outState.putBoolean("nextEnabled", pager.isPagingEnabled());
+        outState.putBoolean("nextPagingEnabled", pager.isNextPagingEnabled());
+        outState.putInt("lockPage", pager.getLockPage());
+        outState.putInt("currentItem", pager.getCurrentItem());
+    }
+
+    // **********************************
+    // Control
+    // **********************************
+    @Override
+    public boolean onKeyDown(int code, KeyEvent kvent) {
+        if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
+            ViewPager vp = (ViewPager) this.findViewById(R.id.view_pager);
+            if (vp.getCurrentItem() == vp.getAdapter().getCount() - 1) {
+                onDonePressed();
+            } else {
+                vp.setCurrentItem(vp.getCurrentItem() + 1);
+            }
+            return false;
+        }
+        return super.onKeyDown(code, kvent);
+    }
+
+    // **********************************
+    // UI
+    // **********************************
+    private void bindViews() {
         skipButton = findViewById(R.id.skip);
         nextButton = findViewById(R.id.next);
         backgroundFrame = (FrameLayout) findViewById(R.id.background);
         doneButton = findViewById(R.id.done);
+    }
+
+    private void initializePagerAdapter() {
         featurePagerAdapter = new FeaturePagerAdapter(getSupportFragmentManager(), fragments);
         pager = (FeaturePagerViewPager) findViewById(R.id.view_pager);
         pager.setAdapter(this.featurePagerAdapter);
+    }
 
+    private void setButtonClickListeners() {
+        setSkipButtonClickListener();
+        setNextButtonClickListener();
+        setDoneButtonClickListener();
+    }
+
+    private void restoreLockStateFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             restoreLockingState(savedInstanceState);
         }
+    }
 
-        if (skipButton != null) {
-            skipButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(@NonNull View v) {
-                    onSkipPressed();
-                }
-            });
+    private void setSkipButtonClickListener() {
+        if (skipButton == null) {
+            return;
+        }
+
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(@NonNull View v) {
+                onSkipPressed();
+            }
+        });
+    }
+
+    private void setNextButtonClickListener() {
+        if (nextButton == null) {
+            return;
         }
 
         nextButton.setOnClickListener(new View.OnClickListener() {
@@ -148,17 +213,18 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    private void setDoneButtonClickListener() {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
                 onDonePressed();
             }
         });
+    }
 
-        /**
-         *  ViewPager.setOnPageChangeListener is now deprecated. Use addOnPageChangeListener() instead of it.
-         */
+    private void initializeViewPager() {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -174,7 +240,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (slidesNumber > 1) {
-                    mController.selectPosition(position);
+                    indicatorController.selectPosition(position);
                 }
 
                 if (!pager.isNextPagingEnabled()) {
@@ -197,11 +263,11 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
             }
         });
+
         pager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
+    }
 
-        setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
-
-        init(savedInstanceState);
+    private void initializeSlides() {
         slidesNumber = fragments.size();
 
         if (slidesNumber == 1) {
@@ -209,23 +275,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         } else {
             initController();
         }
-    }
-
-    protected void setScrollDurationFactor(int factor) {
-        pager.setScrollDurationFactor(factor);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("baseProgressButtonEnabled", baseProgressButtonEnabled);
-        outState.putBoolean("progressButtonEnabled", progressButtonEnabled);
-        outState.putBoolean("skipButtonEnabled", skipButtonEnabled);
-        outState.putBoolean("nextButtonEnabled", skipButtonEnabled);
-        outState.putBoolean("nextEnabled", pager.isPagingEnabled());
-        outState.putBoolean("nextPagingEnabled", pager.isNextPagingEnabled());
-        outState.putInt("lockPage", pager.getLockPage());
-        outState.putInt("currentItem", pager.getCurrentItem());
     }
 
     protected void restoreLockingState(Bundle savedInstanceState) {
@@ -242,24 +291,20 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         pager.setLockPage(savedInstanceState.getInt("lockPage"));
     }
 
-    public FeaturePagerViewPager getPager() {
-        return pager;
-    }
-
     private void initController() {
-        if (mController == null) {
-            mController = new DefaultIndicatorController();
+        if (indicatorController == null) {
+            indicatorController = new DefaultIndicatorController();
         }
 
         FrameLayout indicatorContainer = (FrameLayout) findViewById(R.id.indicator_container);
-        indicatorContainer.addView(mController.newInstance(this));
+        indicatorContainer.addView(indicatorController.newInstance(this));
+        indicatorController.initialize(slidesNumber);
 
-        mController.initialize(slidesNumber);
         if (selectedIndicatorColor != DEFAULT_COLOR) {
-            mController.setSelectedIndicatorColor(selectedIndicatorColor);
+            indicatorController.setSelectedIndicatorColor(selectedIndicatorColor);
         }
         if (unselectedIndicatorColor != DEFAULT_COLOR) {
-            mController.setUnselectedIndicatorColor(unselectedIndicatorColor);
+            indicatorController.setUnselectedIndicatorColor(unselectedIndicatorColor);
         }
     }
 
@@ -268,6 +313,9 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         featurePagerAdapter.notifyDataSetChanged();
     }
 
+    // **********************************
+    // Getters / Setters
+    // **********************************
     @NonNull
     public List<Fragment> getSlides() {
         return featurePagerAdapter.getFragmentList();
@@ -291,20 +339,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public void setOffScreenPageLimit(int limit) {
         pager.setOffscreenPageLimit(limit);
-    }
-
-    @Override
-    public boolean onKeyDown(int code, KeyEvent kvent) {
-        if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
-            ViewPager vp = (ViewPager) this.findViewById(R.id.view_pager);
-            if (vp.getCurrentItem() == vp.getAdapter().getCount() - 1) {
-                onDonePressed();
-            } else {
-                vp.setCurrentItem(vp.getCurrentItem() + 1);
-            }
-            return false;
-        }
-        return super.onKeyDown(code, kvent);
     }
 
     /**
@@ -496,7 +530,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      * could not be enough space to display all dots on smaller device screens.
      */
     public void setProgressIndicator() {
-        mController = new ProgressIndicatorController();
+        indicatorController = new ProgressIndicatorController();
     }
 
     /**
@@ -506,7 +540,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      * @param controller The controller to use
      */
     public void setCustomIndicator(@NonNull IndicatorControllerInterface controller) {
-        mController = controller;
+        indicatorController = controller;
     }
 
     /**
@@ -565,12 +599,12 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         this.selectedIndicatorColor = selectedIndicatorColor;
         this.unselectedIndicatorColor = unselectedIndicatorColor;
 
-        if (mController != null) {
+        if (indicatorController != null) {
             if (selectedIndicatorColor != DEFAULT_COLOR) {
-                mController.setSelectedIndicatorColor(selectedIndicatorColor);
+                indicatorController.setSelectedIndicatorColor(selectedIndicatorColor);
             }
             if (unselectedIndicatorColor != DEFAULT_COLOR) {
-                mController.setUnselectedIndicatorColor(unselectedIndicatorColor);
+                indicatorController.setUnselectedIndicatorColor(unselectedIndicatorColor);
             }
         }
     }
@@ -612,6 +646,17 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         pager.setPagingEnabled(!lockEnable);
     }
 
+    protected void setScrollDurationFactor(int factor) {
+        pager.setScrollDurationFactor(factor);
+    }
+
+    public FeaturePagerViewPager getPager() {
+        return pager;
+    }
+
+    // **********************************
+    // Permissions
+    // **********************************
     public void askForPermissions(String[] permissions, int slidesNumber) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (slidesNumber == 0) {
