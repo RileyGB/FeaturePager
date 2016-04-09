@@ -50,7 +50,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     // Variables
     protected FeaturePagerAdapter featurePagerAdapter;
     protected FeaturePagerViewPager pager;
-    protected List<Fragment> fragments = new Vector<>();
     protected IndicatorControllerInterface indicatorController;
     protected boolean skipButtonEnabled = true;
     protected boolean isNextButtonEnabled = true;
@@ -61,8 +60,9 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
     protected int slidesNumber;
     protected int savedCurrentItem;
-    protected ArrayList<PermissionObject> permissionsArray = new ArrayList<>();
-    protected ArrayList<Integer> transitionColors;
+    protected List<Fragment> fragmentsList = new Vector<>();
+    protected List<PermissionObject> permissionsArray = new ArrayList<>();
+    protected List<Integer> backgroundColorList;
     protected ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
     // Views
@@ -130,11 +130,11 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int code, KeyEvent kvent) {
         if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
-            ViewPager vp = (ViewPager) this.findViewById(R.id.view_pager);
-            if (vp.getCurrentItem() == vp.getAdapter().getCount() - 1) {
+            ViewPager viewPager = (ViewPager) this.findViewById(R.id.view_pager);
+            if (viewPager.getCurrentItem() == viewPager.getAdapter().getCount() - 1) {
                 onDonePressed();
             } else {
-                vp.setCurrentItem(vp.getCurrentItem() + 1);
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             }
             return false;
         }
@@ -152,7 +152,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     private void initializePagerAdapter() {
-        featurePagerAdapter = new FeaturePagerAdapter(getSupportFragmentManager(), fragments);
+        featurePagerAdapter = new FeaturePagerAdapter(getSupportFragmentManager(), fragmentsList);
         pager = (FeaturePagerViewPager) findViewById(R.id.view_pager);
         pager.setAdapter(this.featurePagerAdapter);
     }
@@ -232,11 +232,11 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if (transitionColors != null) {
-                    if (position < (pager.getAdapter().getCount() - 1) && position < (transitionColors.size() - 1)) {
-                        pager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, transitionColors.get(position), transitionColors.get(position + 1)));
+                if (backgroundColorList != null) {
+                    if (position < (pager.getAdapter().getCount() - 1) && position < (backgroundColorList.size() - 1)) {
+                        pager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, backgroundColorList.get(position), backgroundColorList.get(position + 1)));
                     } else {
-                        pager.setBackgroundColor(transitionColors.get(transitionColors.size() - 1));
+                        pager.setBackgroundColor(backgroundColorList.get(backgroundColorList.size() - 1));
                     }
                 }
             }
@@ -272,7 +272,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     private void initializeSlides() {
-        slidesNumber = fragments.size();
+        slidesNumber = fragmentsList.size();
 
         if (slidesNumber == 1) {
             setProgressButtonEnabled(progressButtonEnabled);
@@ -313,7 +313,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     public void addSlide(@NonNull Fragment fragment) {
-        fragments.add(fragment);
+        fragmentsList.add(fragment);
         featurePagerAdapter.notifyDataSetChanged();
     }
 
@@ -500,13 +500,12 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     /**
-     * For color transition, will be shown only if color values are properly set and
-     * Size of the color array must be equal to the number of slides added
+     * Sets the background
      *
-     * @param colors Set color values
+     * @param backgroundColorList Set color values
      */
-    public void setAnimationColors(@ColorInt ArrayList<Integer> colors) {
-        transitionColors = colors;
+    public void setSlideBackgroundColorList(@ColorInt List<Integer> backgroundColorList) {
+        this.backgroundColorList = backgroundColorList;
     }
 
     /**
@@ -685,6 +684,5 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             default:
                 Log.e(TAG, "Unexpected request code");
         }
-
     }
 }

@@ -139,19 +139,34 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
             // callbacks to match up perfectly.
 
         } else {
-            View title = page.findViewById(R.id.title);
-            title.setAlpha(1.0f - absPosition);
+            fadeTransformTitle(page, absPosition);
+            fadeTransformDescription(page, pageWidthTimesPosition, absPosition);
+            fadeTransformImage(page, pagePosition, pageWidthTimesPosition, absPosition);
+        }
+    }
 
-            View description = page.findViewById(R.id.description);
-            description.setTranslationY(-pageWidthTimesPosition / 2f);
-            description.setAlpha(1.0f - absPosition);
+    private void fadeTransformTitle(View page, float absPosition) {
+        View titleTextView = page.findViewById(R.id.title);
+        if(titleTextView != null) {
+            titleTextView.setAlpha(1.0f - absPosition);
+        }
+    }
 
-            View image = page.findViewById(R.id.image);
+    private void fadeTransformDescription(View page, float pageWidthTimesPosition, float absPosition) {
+        View descriptionTextView = page.findViewById(R.id.description);
 
-            if (pagePosition == 0 && image != null) {
-                image.setAlpha(1.0f - absPosition);
-                image.setTranslationX(-pageWidthTimesPosition * 1.5f);
-            }
+        if(descriptionTextView != null) {
+            descriptionTextView.setTranslationX(-pageWidthTimesPosition * 1.5f);
+            descriptionTextView.setAlpha(1.0f - absPosition);
+        }
+    }
+
+    private void fadeTransformImage(View page, int pagePosition, float pageWidthTimesPosition, float absPosition) {
+        View imageView = page.findViewById(R.id.image);
+
+        if (pagePosition == 0 && imageView != null) {
+            imageView.setAlpha(1.0f - absPosition);
+            imageView.setTranslationX(-pageWidthTimesPosition * 1.5f);
         }
     }
 
