@@ -216,6 +216,10 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     private void setDoneButtonClickListener() {
+        if (doneButton == null) {
+            return;
+        }
+
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
@@ -254,7 +258,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                     setProgressButtonEnabled(progressButtonEnabled);
                 }
 
-                setButtonState(skipButton, skipButtonEnabled);
+                setViewVisible(skipButton, skipButtonEnabled);
                 onSlideChanged();
             }
 
@@ -329,11 +333,14 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         return skipButtonEnabled;
     }
 
-    private void setButtonState(View button, boolean show) {
-        if (show) {
-            button.setVisibility(View.VISIBLE);
+    private void setViewVisible(View view, boolean shouldShowView) {
+        if(view == null) {
+            // Don't set state
+        }
+        else if (shouldShowView) {
+            view.setVisibility(View.VISIBLE);
         } else {
-            button.setVisibility(View.INVISIBLE);
+            view.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -351,19 +358,19 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         this.progressButtonEnabled = progressButtonEnabled;
 
         if (!isNextButtonEnabled) {
-            setButtonState(nextButton, false);
-            setButtonState(doneButton, true);
+            setViewVisible(nextButton, false);
+            setViewVisible(doneButton, true);
         } else if (progressButtonEnabled) {
             if (pager.getCurrentItem() == slidesNumber - 1) {
-                setButtonState(nextButton, false);
-                setButtonState(doneButton, true);
+                setViewVisible(nextButton, false);
+                setViewVisible(doneButton, true);
             } else {
-                setButtonState(nextButton, true);
-                setButtonState(doneButton, false);
+                setViewVisible(nextButton, true);
+                setViewVisible(doneButton, false);
             }
         } else {
-            setButtonState(nextButton, false);
-            setButtonState(doneButton, false);
+            setViewVisible(nextButton, false);
+            setViewVisible(doneButton, false);
         }
     }
 
@@ -510,7 +517,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      */
     public void showSkipButton(boolean showButton) {
         this.skipButtonEnabled = showButton;
-        setButtonState(skipButton, showButton);
+        setViewVisible(skipButton, showButton);
     }
 
     /**
@@ -521,7 +528,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      */
     public void showNextButton(boolean isNextButtonEnabled) {
         this.isNextButtonEnabled = isNextButtonEnabled;
-        setButtonState(nextButton, isNextButtonEnabled);
+        setViewVisible(nextButton, isNextButtonEnabled);
         setProgressButtonEnabled(true);
     }
 
