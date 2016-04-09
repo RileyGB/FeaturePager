@@ -125,6 +125,8 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
 
     private void setFadeTransform(View parentView, float position) {
         int pagePosition = (int) parentView.getTag();
+        int pageWidth = parentView.getWidth();
+        float pageWidthTimesPosition = pageWidth * position;
         float absPosition = Math.abs(position);
 
         if (position <= -1.0f || position >= 1.0f) {
@@ -133,8 +135,8 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
             setAllViewsVisible(parentView);
         } else {
             fadeTransformTitle(parentView, absPosition);
-            fadeTransformDescription(parentView, absPosition);
-            fadeTransformImage(parentView, pagePosition, absPosition);
+            fadeTransformDescription(parentView, pageWidthTimesPosition, absPosition);
+            fadeTransformImage(parentView, pagePosition, pageWidthTimesPosition, absPosition);
         }
     }
 
@@ -145,18 +147,20 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
         }
     }
 
-    private void fadeTransformDescription(View parentView, float absPosition) {
+    private void fadeTransformDescription(View parentView, float pageWidthTimesPosition, float absPosition) {
         View descriptionTextView = parentView.findViewById(R.id.description);
 
         if(descriptionTextView != null) {
+            descriptionTextView.setTranslationX(-pageWidthTimesPosition * 1.5f);
             descriptionTextView.setAlpha(1.0f - absPosition);
         }
     }
 
-    private void fadeTransformImage(View parentView, int pagePosition, float absPosition) {
+    private void fadeTransformImage(View parentView, int pagePosition, float pageWidthTimesPosition, float absPosition) {
         View imageView = parentView.findViewById(R.id.image);
 
         if (pagePosition == 0 && imageView != null) {
+            imageView.setTranslationX(-pageWidthTimesPosition * 1.5f);
             imageView.setAlpha(1.0f - absPosition);
         }
     }

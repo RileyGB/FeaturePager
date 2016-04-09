@@ -1,6 +1,7 @@
 package com.SearingMedia.featurepager.fragments;
 
 import android.os.Bundle;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 
 import com.SearingMedia.featurepager.R;
 
-public class FeaturePagerFragment extends Fragment {
+public class FeaturePagerFragment extends Fragment implements INumberedFragment {
     // Constants
     private static final String ARG_TITLE = "title";
     private static final String ARG_DESC = "desc";
@@ -36,7 +37,7 @@ public class FeaturePagerFragment extends Fragment {
     // **********************************
     // Instantiation
     // **********************************
-    public static FeaturePagerFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int page) {
+    public static FeaturePagerFragment newInstance(CharSequence title, CharSequence description, @DrawableRes int imageDrawable) {
         FeaturePagerFragment featurePagerFragment = new FeaturePagerFragment();
 
         Bundle bundle = new Bundle();
@@ -81,4 +82,13 @@ public class FeaturePagerFragment extends Fragment {
         return fragmentView;
     }
 
+    // **********************************
+    // Setters
+    // **********************************
+    @Override
+    public void setPageNumber(int pageNumber) {
+        Bundle bundle = getArguments();
+        bundle.putInt(PAGE, pageNumber);
+        setArguments(bundle);
+    }
 }
