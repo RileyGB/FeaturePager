@@ -1,4 +1,4 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.transformers;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

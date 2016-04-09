@@ -1,8 +1,11 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.controllers;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
+
+import com.SearingMedia.featurepager.activities.FeaturePagerActivity;
+import com.SearingMedia.featurepager.activities.FeaturePagerIconicActivity;
 
 /**
  * A controller that is used to provide custom indicator implementations and to control their behaviour.

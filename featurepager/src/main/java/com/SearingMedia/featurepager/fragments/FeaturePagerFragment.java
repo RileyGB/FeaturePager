@@ -1,4 +1,4 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,7 +11,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class AppIntroFragment extends Fragment {
+import com.SearingMedia.featurepager.R;
+
+public class FeaturePagerFragment extends Fragment {
 
     private static final String ARG_TITLE = "title";
     private static final String ARG_DESC = "desc";
@@ -21,8 +23,8 @@ public class AppIntroFragment extends Fragment {
 
     private int pageNumber;
 
-    public static AppIntroFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int page) {
-        AppIntroFragment sampleSlide = new AppIntroFragment();
+    public static FeaturePagerFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int page) {
+        FeaturePagerFragment sampleSlide = new FeaturePagerFragment();
 
         Bundle args = new Bundle();
         args.putCharSequence(ARG_TITLE, title);
@@ -38,7 +40,7 @@ public class AppIntroFragment extends Fragment {
     private int drawable, bgColor;
     private CharSequence title, description;
 
-    public AppIntroFragment() {
+    public FeaturePagerFragment() {
     }
 
     @Override

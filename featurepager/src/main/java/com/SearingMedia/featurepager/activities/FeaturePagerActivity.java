@@ -1,13 +1,16 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.activities;
 
-import android.animation.ArgbEvaluator;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.ColorInt;
+import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,21 +19,32 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager;
+import com.SearingMedia.featurepager.controllers.DefaultIndicatorController;
+import com.SearingMedia.featurepager.controllers.IndicatorController;
+import com.SearingMedia.featurepager.viewpager.FeaturePagerAdapter;
+import com.SearingMedia.featurepager.permissions.PermissionObject;
+import com.SearingMedia.featurepager.controllers.ProgressIndicatorController;
+import com.SearingMedia.featurepager.R;
+import com.SearingMedia.featurepager.transformers.ViewPageTransformer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-
-public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
+public abstract class FeaturePagerActivity extends AppCompatActivity {
     public final static int DEFAULT_COLOR = 1;
     private static final int DEFAULT_SCROLL_DURATION_FACTOR = 1;
-    private boolean STATUS_BAR_VISIBLE = false;
+    private static String TAG = "FeaturePagerActivity";
 
-    protected PagerAdapter mPagerAdapter;
-    protected AppIntroViewPager pager;
+    protected FeaturePagerAdapter featurePagerAdapter;
+    protected FeaturePagerViewPager pager;
     protected List<Fragment> fragments = new Vector<>();
     protected List<ImageView> dots;
     protected int slidesNumber;
@@ -38,21 +52,20 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
     protected IndicatorController mController;
     protected boolean isVibrateOn = false;
     protected int vibrateIntensity = 20;
+    protected boolean skipButtonEnabled = true;
+    protected boolean isNextButtonEnabled = true;
     protected boolean baseProgressButtonEnabled = true;
     protected boolean progressButtonEnabled = true;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
+    protected View skipButton;
     protected View nextButton;
     protected View doneButton;
-    protected View customBackgroundView;
-    protected FrameLayout backgroundFrame;
     protected int savedCurrentItem;
     protected ArrayList<PermissionObject> permissionsArray = new ArrayList<>();
     private static final int PERMISSIONS_REQUEST_ALL_PERMISSIONS = 1;
-    private ArrayList<Integer> transitionColors;
-    private ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
-    static enum TransformType {
+    enum TransformType {
         FLOW,
         DEPTH,
         ZOOM,
@@ -62,21 +75,34 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
 
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
+        onPreCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.intro_layout2);
 
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.intro_layout);
+
+        skipButton = findViewById(R.id.skip);
         nextButton = findViewById(R.id.next);
         doneButton = findViewById(R.id.done);
-        backgroundFrame = (FrameLayout) findViewById(R.id.background);
         mVibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
-        mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), fragments);
-        pager = (AppIntroViewPager) findViewById(R.id.view_pager);
-        pager.setAdapter(mPagerAdapter);
+        featurePagerAdapter = new FeaturePagerAdapter(getSupportFragmentManager(), fragments);
+        pager = (FeaturePagerViewPager) findViewById(R.id.view_pager);
+        pager.setAdapter(this.featurePagerAdapter);
 
         if (savedInstanceState != null) {
             restoreLockingState(savedInstanceState);
         }
+
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(@NonNull View v) {
+                if (isVibrateOn) {
+                    mVibrator.vibrate(vibrateIntensity);
+                }
+                onSkipPressed();
+            }
+        });
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,23 +152,13 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-                if (transitionColors != null) {
-                    if(position < (pager.getAdapter().getCount() -1) && position < (transitionColors.size() - 1)) {
-                        pager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, transitionColors.get(position), transitionColors.get(position + 1)));
-                    } else {
-                        pager.setBackgroundColor(transitionColors.get(transitionColors.size() - 1));
-                    }
-                }
             }
-
 
             @Override
             public void onPageSelected(int position) {
                 if (slidesNumber > 1)
                     mController.selectPosition(position);
 
-                // Allow the swipe to be re-enabled if a user swipes to a previous slide. Restore
-                // state of progress button depending on global progress button setting
                 if (!pager.isNextPagingEnabled()) {
                     if (pager.getCurrentItem() != pager.getLockPage()) {
                         setProgressButtonEnabled(baseProgressButtonEnabled);
@@ -153,17 +169,19 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
                 } else {
                     setProgressButtonEnabled(progressButtonEnabled);
                 }
+
+                setButtonState(skipButton, skipButtonEnabled);
                 onSlideChanged();
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
+
             }
         });
+        pager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
 
         setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
-
-        pager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
 
         init(savedInstanceState);
         slidesNumber = fragments.size();
@@ -184,6 +202,8 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean("baseProgressButtonEnabled", baseProgressButtonEnabled);
         outState.putBoolean("progressButtonEnabled", progressButtonEnabled);
+        outState.putBoolean("skipButtonEnabled", skipButtonEnabled);
+        outState.putBoolean("nextButtonEnabled", skipButtonEnabled);
         outState.putBoolean("nextEnabled", pager.isPagingEnabled());
         outState.putBoolean("nextPagingEnabled", pager.isNextPagingEnabled());
         outState.putInt("lockPage", pager.getLockPage());
@@ -195,13 +215,15 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         this.baseProgressButtonEnabled = savedInstanceState.getBoolean("baseProgressButtonEnabled");
         this.progressButtonEnabled = savedInstanceState.getBoolean("progressButtonEnabled");
+        this.skipButtonEnabled = savedInstanceState.getBoolean("skipButtonEnabled");
+        this.isNextButtonEnabled = savedInstanceState.getBoolean("nextButtonEnabled");
         this.savedCurrentItem = savedInstanceState.getInt("currentItem");
         pager.setPagingEnabled(savedInstanceState.getBoolean("nextEnabled"));
         pager.setNextPagingEnabled(savedInstanceState.getBoolean("nextPagingEnabled"));
         pager.setLockPage(savedInstanceState.getInt("lockPage"));
     }
 
-    public AppIntroViewPager getPager() {
+    public FeaturePagerViewPager getPager() {
         return pager;
     }
 
@@ -221,22 +243,58 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
 
     public void addSlide(@NonNull Fragment fragment) {
         fragments.add(fragment);
-        mPagerAdapter.notifyDataSetChanged();
+        featurePagerAdapter.notifyDataSetChanged();
     }
 
     @NonNull
     public List<Fragment> getSlides() {
-        return mPagerAdapter.getFragments();
+        return featurePagerAdapter.getFragments();
     }
 
-    /**
-     * Shows or hides Done button, replaced with setProgressButtonEnabled
-     *
-     * @deprecated use {@link #setProgressButtonEnabled(boolean)} instead.
-     */
-    @Deprecated
-    public void showDoneButton(boolean showDone) {
-        setProgressButtonEnabled(showDone);
+    public boolean isProgressButtonEnabled() {
+        return progressButtonEnabled;
+    }
+
+    public boolean isSkipButtonEnabled() {
+        return skipButtonEnabled;
+    }
+
+    private void setButtonState(View button, boolean show) {
+        if (show) {
+            button.setVisibility(View.VISIBLE);
+        } else {
+            button.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void setOffScreenPageLimit(int limit) {
+        pager.setOffscreenPageLimit(limit);
+    }
+
+    public abstract void onPreCreate(@Nullable Bundle savedInstanceState);
+
+    public abstract void init(@Nullable Bundle savedInstanceState);
+
+    public abstract void onSkipPressed();
+
+    public abstract void onNextPressed();
+
+    public abstract void onDonePressed();
+
+    public abstract void onSlideChanged();
+
+    @Override
+    public boolean onKeyDown(int code, KeyEvent kvent) {
+        if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
+            ViewPager vp = (ViewPager) this.findViewById(R.id.view_pager);
+            if (vp.getCurrentItem() == vp.getAdapter().getCount() - 1) {
+                onDonePressed();
+            } else {
+                vp.setCurrentItem(vp.getCurrentItem() + 1);
+            }
+            return false;
+        }
+        return super.onKeyDown(code, kvent);
     }
 
     /**
@@ -247,7 +305,12 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
      */
     public void setProgressButtonEnabled(boolean progressButtonEnabled) {
         this.progressButtonEnabled = progressButtonEnabled;
-        if (progressButtonEnabled) {
+
+        if(!isNextButtonEnabled) {
+            setButtonState(nextButton, false);
+            setButtonState(doneButton, true);
+        }
+        else if (progressButtonEnabled) {
             if (pager.getCurrentItem() == slidesNumber - 1) {
                 setButtonState(nextButton, false);
                 setButtonState(doneButton, true);
@@ -261,75 +324,163 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
         }
     }
 
-    public boolean isProgressButtonEnabled() {
-        return progressButtonEnabled;
+    /**
+     * Override viewpager bar color
+     *
+     * @param color your color resource
+     */
+    public void setBarColor(@ColorInt final int color) {
+        LinearLayout bottomBar = (LinearLayout) findViewById(R.id.bottom);
+        bottomBar.setBackgroundColor(color);
     }
 
-    private void setButtonState(View button, boolean show) {
-        if (show) {
-            button.setVisibility(View.VISIBLE);
-        } else {
-            button.setVisibility(View.INVISIBLE);
-        }
+    /**
+     * Override next button arrow color
+     *
+     * @param color your color
+     *
+     */
+    public void setNextArrowColor(@ColorInt final int color) {
+        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
+        nextButton.setColorFilter(color);
     }
 
+    /**
+     * Override separator color
+     *
+     * @param color your color resource
+     */
+    public void setSeparatorColor(@ColorInt final int color) {
+        TextView separator = (TextView) findViewById(R.id.bottom_separator);
+        separator.setBackgroundColor(color);
+    }
+
+    /**
+     * Override skip text
+     *
+     * @param text your text
+     */
+    public void setSkipText(@Nullable final CharSequence text) {
+        TextView skipText = (TextView) findViewById(R.id.skip);
+        skipText.setText(text);
+    }
+
+    /**
+     * Override done text
+     *
+     * @param text your text
+     */
+    public void setDoneText(@Nullable final CharSequence text) {
+        TextView doneText = (TextView) findViewById(R.id.done);
+        doneText.setText(text);
+    }
+
+    /**
+     * Override done button text color
+     *
+     * @param colorDoneText your color resource
+     */
+    public void setColorDoneText(@ColorInt final int colorDoneText) {
+        TextView doneText = (TextView) findViewById(R.id.done);
+        doneText.setTextColor(colorDoneText);
+    }
+
+    /**
+     * Override skip button color
+     *
+     * @param colorSkipButton your color resource
+     */
+    public void setColorSkipButton(@ColorInt final int colorSkipButton) {
+        TextView skip = (TextView) findViewById(R.id.skip);
+        skip.setTextColor(colorSkipButton);
+    }
+
+    /**
+     * Override Next button
+     *
+     * @param imageNextButton your drawable resource
+     */
+    public void setImageNextButton(@DrawableRes final Drawable imageNextButton) {
+        final ImageView nextButton = (ImageView) findViewById(R.id.next);
+        nextButton.setImageDrawable(imageNextButton);
+
+    }
+
+    /**
+     * Allows the user to set the nav bar color of their app intro
+     *
+     * @param Color string form of color in 3 or 6 digit hex form (#ffffff)
+     */
     public void setNavBarColor(String Color) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().setNavigationBarColor(android.graphics.Color.parseColor(Color));
         }
     }
 
-    public void showStatusBar(boolean isVisible) {
-        this.STATUS_BAR_VISIBLE = isVisible;
+    /**
+     * Allows the user to set the nav bar color of their app intro
+     *
+     * @param color int form of color. pass your color resource to here (R.color.your_color)
+     */
+    public void setNavBarColor(@ColorRes int color) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(ContextCompat.getColor(this, color));
+        }
+    }
 
-        if (STATUS_BAR_VISIBLE) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
+    /**
+     * Allows for setting statusbar visibility (true by default)
+     *
+     * @param isVisible put true to show status bar, and false to hide it
+     */
+    public void showStatusBar(boolean isVisible) {
+        if (!isVisible) {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
-    }
-    public void setBackgroundView(View view){
-        customBackgroundView = view;
-        if (customBackgroundView!=null){
-            backgroundFrame.addView(customBackgroundView);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
 
-    public void setVibrate(boolean vibrate) {
-        this.isVibrateOn = vibrate;
+    /**
+     * Setting to to display or hide the Skip button. This is a static setting and
+     * button state is maintained across slides until explicitly changed.
+     *
+     * @param showButton Set true to display. False to hide.
+     */
+    public void showSkipButton(boolean showButton) {
+        this.skipButtonEnabled = showButton;
+        setButtonState(skipButton, showButton);
     }
 
+    /**
+     * Setting to to display or hide the Next button. This is a static setting and
+     * button state is maintained across slides until explicitly changed.
+     *
+     * @param isNextButtonEnabled Set true to display. False to hide.
+     */
+    public void showNextButton(boolean isNextButtonEnabled) {
+        this.isNextButtonEnabled = isNextButtonEnabled;
+        setButtonState(nextButton, isNextButtonEnabled);
+        setProgressButtonEnabled(true);
+    }
+
+    /**
+     * sets vibration when buttons are pressed
+     *
+     * @param vibrationEnabled on/off
+     */
+    public void setVibrate(boolean vibrationEnabled) {
+        this.isVibrateOn = vibrationEnabled;
+    }
+
+    /**
+     * sets vibration intensity
+     *
+     * @param intensity desired intensity
+     */
     public void setVibrateIntensity(int intensity) {
         this.vibrateIntensity = intensity;
-    }
-
-    public void setFadeAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.FADE));
-    }
-
-    public void setZoomAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.ZOOM));
-    }
-
-    public void setFlowAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.FLOW));
-    }
-
-    public void setSlideOverAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.SLIDE_OVER));
-    }
-
-    public void setDepthAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.DEPTH));
-    }
-
-    public void setCustomTransformer(@Nullable ViewPager.PageTransformer transformer) {
-        pager.setPageTransformer(true, transformer);
-    }
-
-    public void setOffScreenPageLimit(int limit) {
-        pager.setOffscreenPageLimit(limit);
     }
 
     /**
@@ -341,7 +492,7 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
     }
 
     /**
-     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link FeaturePagerIconicActivity} instead of the
+     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link FeaturePagerActivity} instead of the
      * default one.
      *
      * @param controller The controller to use
@@ -350,30 +501,57 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
         mController = controller;
     }
 
-    public abstract void init(@Nullable Bundle savedInstanceState);
-
-    public abstract void onDonePressed();
-
-    public abstract void onNextPressed();
-
-    public abstract void onSlideChanged();
-
-    @Override
-    public boolean onKeyDown(int code, KeyEvent kevent) {
-        if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
-            ViewPager vp = (ViewPager) this.findViewById(R.id.view_pager);
-            if (vp.getCurrentItem() == vp.getAdapter().getCount() - 1) {
-                onDonePressed();
-            } else {
-                vp.setCurrentItem(vp.getCurrentItem() + 1);
-            }
-            return false;
-        }
-        return super.onKeyDown(code, kevent);
+    /**
+     * Sets the animation of the intro to a fade animation
+     */
+    public void setFadeAnimation() {
+        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.FADE));
     }
 
     /**
+     * Sets the animation of the intro to a zoom animation
+     */
+    public void setZoomAnimation() {
+        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.ZOOM));
+    }
+
+    /**
+     * Sets the animation of the intro to a flow animation
+     */
+    public void setFlowAnimation() {
+        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.FLOW));
+    }
+
+    /**
+     * Sets the animation of the intro to a Slide Over animation
+     */
+    public void setSlideOverAnimation() {
+        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.SLIDE_OVER));
+    }
+
+    /**
+     * Sets the animation of the intro to a Depth animation
+     */
+    public void setDepthAnimation() {
+        pager.setPageTransformer(true, new ViewPageTransformer(ViewPageTransformer.TransformType.DEPTH));
+    }
+
+    /**
+     * Overrides viewpager transformer
+     *
+     * @param transformer your custom transformer
+     */
+    public void setCustomTransformer(@Nullable ViewPager.PageTransformer transformer) {
+        pager.setPageTransformer(true, transformer);
+    }
+
+    /**
+     * Overrides color of selected and unselected indicator colors
+     * <p/>
      * Set DEFAULT_COLOR for color value if you don't want to change it
+     *
+     * @param selectedIndicatorColor   your selected color
+     * @param unselectedIndicatorColor your unselected color
      */
     public void setIndicatorColor(int selectedIndicatorColor, int unselectedIndicatorColor) {
         this.selectedIndicatorColor = selectedIndicatorColor;
@@ -424,17 +602,6 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
         pager.setPagingEnabled(!lockEnable);
     }
 
-    /**
-     * For color transition, will be shown only if color values are properly set and
-     * Size of the color array must be equal to the number of slides added
-     * @param colors Set color values
-     * */
-    public void setAnimationColors(@ColorInt ArrayList<Integer> colors) {
-        transitionColors = colors;
-    }
-
-    private static String TAG = "AppIntro2";
-
     public void askForPermissions(String[] permissions, int slidesNumber) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (slidesNumber == 0) {
@@ -442,14 +609,13 @@ public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
             } else {
                 PermissionObject permission = new PermissionObject(permissions, slidesNumber);
                 permissionsArray.add(permission);
-                setSwipeLock(true);
             }
         }
     }
 
     public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
                                            @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    	super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case PERMISSIONS_REQUEST_ALL_PERMISSIONS:
                 pager.setCurrentItem(pager.getCurrentItem() + 1);

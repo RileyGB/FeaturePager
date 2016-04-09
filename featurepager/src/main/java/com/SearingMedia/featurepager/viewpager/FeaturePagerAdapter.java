@@ -1,4 +1,4 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.viewpager;
 
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -7,10 +7,10 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import java.util.List;
 
-class PagerAdapter extends FragmentPagerAdapter {
+public class FeaturePagerAdapter extends FragmentPagerAdapter {
     private List<Fragment> fragments;
 
-    public PagerAdapter(FragmentManager fm, @NonNull List<Fragment> fragments) {
+    public FeaturePagerAdapter(FragmentManager fm, @NonNull List<Fragment> fragments) {
         super(fm);
         this.fragments = fragments;
     }

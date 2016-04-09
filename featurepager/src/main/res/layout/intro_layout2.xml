@@ -9,11 +9,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <com.SearingMedia.featurepager.AppIntroViewPager
+    <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
         android:id="@+id/view_pager"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
-    </com.SearingMedia.featurepager.AppIntroViewPager>
+    </com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager>
 
     <LinearLayout
         android:id="@+id/bottom"

@@ -1,10 +1,12 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.controllers;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ProgressBar;
+
+import com.SearingMedia.featurepager.R;
 
 public class ProgressIndicatorController implements IndicatorController {
     public final static int DEFAULT_COLOR = 1;

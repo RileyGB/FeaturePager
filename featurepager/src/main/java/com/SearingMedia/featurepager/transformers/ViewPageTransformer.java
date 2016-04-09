@@ -1,12 +1,14 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.transformers;
 
 import android.annotation.SuppressLint;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 
-class ViewPageTransformer implements ViewPager.PageTransformer {
+import com.SearingMedia.featurepager.R;
 
-    static enum TransformType {
+public class ViewPageTransformer implements ViewPager.PageTransformer {
+
+    public static enum TransformType {
         FLOW,
         DEPTH,
         ZOOM,
@@ -16,7 +18,7 @@ class ViewPageTransformer implements ViewPager.PageTransformer {
 
     private final TransformType mTransformType;
 
-    ViewPageTransformer(TransformType transformType) {
+    public ViewPageTransformer(TransformType transformType) {
         mTransformType = transformType;
     }
 

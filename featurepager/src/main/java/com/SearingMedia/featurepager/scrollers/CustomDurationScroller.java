@@ -1,24 +1,24 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.scrollers;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.animation.Interpolator;
 import android.widget.Scroller;
 
-public class ScrollerCustomDuration extends Scroller {
+public class CustomDurationScroller extends Scroller {
 
     private double mScrollFactor = 6;
 
-    public ScrollerCustomDuration(Context context) {
+    public CustomDurationScroller(Context context) {
         super(context);
     }
 
-    public ScrollerCustomDuration(Context context, Interpolator interpolator) {
+    public CustomDurationScroller(Context context, Interpolator interpolator) {
         super(context, interpolator);
     }
 
     @SuppressLint("NewApi")
-    public ScrollerCustomDuration(Context context, Interpolator interpolator, boolean flywheel) {
+    public CustomDurationScroller(Context context, Interpolator interpolator, boolean flywheel) {
         super(context, interpolator, flywheel);
     }
 

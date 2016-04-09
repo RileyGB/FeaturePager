@@ -1,4 +1,4 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.controllers;
 
 import android.content.Context;
 import android.graphics.PorterDuff;
@@ -9,10 +9,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.SearingMedia.featurepager.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
-class DefaultIndicatorController implements IndicatorController {
+public class DefaultIndicatorController implements IndicatorController {
     public final static int DEFAULT_COLOR = 1;
 
     private Context mContext;

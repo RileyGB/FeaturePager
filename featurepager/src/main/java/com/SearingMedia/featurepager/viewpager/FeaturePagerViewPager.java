@@ -1,4 +1,4 @@
-package com.SearingMedia.featurepager;
+package com.SearingMedia.featurepager.viewpager;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -6,9 +6,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.animation.Interpolator;
 
+import com.SearingMedia.featurepager.scrollers.CustomDurationScroller;
+
 import java.lang.reflect.Field;
 
-public class AppIntroViewPager extends ViewPager {
+public class FeaturePagerViewPager extends ViewPager {
 
     private boolean pagingEnabled;
     private boolean nextPagingEnabled;
@@ -16,7 +18,7 @@ public class AppIntroViewPager extends ViewPager {
     private int lockPage;
     protected OnPageChangeListener listener;
 
-    public AppIntroViewPager(Context context, AttributeSet attrs) {
+    public FeaturePagerViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         pagingEnabled = true;
         nextPagingEnabled = true;
@@ -92,7 +94,7 @@ public class AppIntroViewPager extends ViewPager {
             lockPage = getCurrentItem();
         }
     }
-    private ScrollerCustomDuration mScroller = null;
+    private CustomDurationScroller mScroller = null;
 
     /**
      * Override the Scroller instance with our own class so we can change the
@@ -105,7 +107,7 @@ public class AppIntroViewPager extends ViewPager {
             Field interpolator = ViewPager.class.getDeclaredField("sInterpolator");
             interpolator.setAccessible(true);
 
-            mScroller = new ScrollerCustomDuration(getContext(),
+            mScroller = new CustomDurationScroller(getContext(),
                     (Interpolator) interpolator.get(null));
             scroller.set(this, mScroller);
         } catch (Exception e) {
