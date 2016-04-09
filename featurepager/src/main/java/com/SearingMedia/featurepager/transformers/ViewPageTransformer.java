@@ -123,50 +123,41 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
         setPageProperties(page, alpha, scale, translationX);
     }
 
-    private void setFadeTransform(View page, float position) {
-        int pagePosition = (int) page.getTag();
-        int pageWidth = page.getWidth();
-        float pageWidthTimesPosition = pageWidth * position;
+    private void setFadeTransform(View parentView, float position) {
+        int pagePosition = (int) parentView.getTag();
         float absPosition = Math.abs(position);
 
         if (position <= -1.0f || position >= 1.0f) {
-            // The page is not visible. This is a good place to stop
-            // any potential work / animations you may have running.
-
+            setAllViewsInvisible(parentView);
         } else if (position == 0.0f) {
-            // The page is selected. This is a good time to reset Views
-            // after animations as you can't always count on the PageTransformer
-            // callbacks to match up perfectly.
-
+            setAllViewsVisible(parentView);
         } else {
-            fadeTransformTitle(page, absPosition);
-            fadeTransformDescription(page, pageWidthTimesPosition, absPosition);
-            fadeTransformImage(page, pagePosition, pageWidthTimesPosition, absPosition);
+            fadeTransformTitle(parentView, absPosition);
+            fadeTransformDescription(parentView, absPosition);
+            fadeTransformImage(parentView, pagePosition, absPosition);
         }
     }
 
-    private void fadeTransformTitle(View page, float absPosition) {
-        View titleTextView = page.findViewById(R.id.title);
+    private void fadeTransformTitle(View parentView, float absPosition) {
+        View titleTextView = parentView.findViewById(R.id.title);
         if(titleTextView != null) {
             titleTextView.setAlpha(1.0f - absPosition);
         }
     }
 
-    private void fadeTransformDescription(View page, float pageWidthTimesPosition, float absPosition) {
-        View descriptionTextView = page.findViewById(R.id.description);
+    private void fadeTransformDescription(View parentView, float absPosition) {
+        View descriptionTextView = parentView.findViewById(R.id.description);
 
         if(descriptionTextView != null) {
-            descriptionTextView.setTranslationX(-pageWidthTimesPosition * 1.5f);
             descriptionTextView.setAlpha(1.0f - absPosition);
         }
     }
 
-    private void fadeTransformImage(View page, int pagePosition, float pageWidthTimesPosition, float absPosition) {
-        View imageView = page.findViewById(R.id.image);
+    private void fadeTransformImage(View parentView, int pagePosition, float absPosition) {
+        View imageView = parentView.findViewById(R.id.image);
 
         if (pagePosition == 0 && imageView != null) {
             imageView.setAlpha(1.0f - absPosition);
-            imageView.setTranslationX(-pageWidthTimesPosition * 1.5f);
         }
     }
 
@@ -178,5 +169,29 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
         page.setScaleX(scale);
         page.setScaleY(scale);
         page.setTranslationX(translationX);
+    }
+
+    private void setAllViewsVisible(View parentView) {
+        setViewVisible(parentView.findViewById(R.id.title));
+        setViewVisible(parentView.findViewById(R.id.description));
+        setViewVisible(parentView.findViewById(R.id.image));
+    }
+
+    private void setAllViewsInvisible(View parentView) {
+        setViewInvisible(parentView.findViewById(R.id.title));
+        setViewInvisible(parentView.findViewById(R.id.description));
+        setViewInvisible(parentView.findViewById(R.id.image));
+    }
+
+    private void setViewVisible(View view) {
+        if(view != null) {
+            view.setAlpha(1.0f);
+        }
+    }
+
+    private void setViewInvisible(View view) {
+        if(view != null) {
+            view.setAlpha(0.0f);
+        }
     }
 }
