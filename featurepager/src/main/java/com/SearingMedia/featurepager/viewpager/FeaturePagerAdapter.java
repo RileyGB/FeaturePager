@@ -8,27 +8,33 @@ import android.support.v4.app.FragmentPagerAdapter;
 import java.util.List;
 
 public class FeaturePagerAdapter extends FragmentPagerAdapter {
-    private List<Fragment> fragments;
+    // Variables
+    private List<Fragment> fragmentList;
 
-    public FeaturePagerAdapter(FragmentManager fm, @NonNull List<Fragment> fragments) {
-        super(fm);
-        this.fragments = fragments;
+    // **********************************
+    // Constructor
+    // **********************************
+    public FeaturePagerAdapter(FragmentManager fragmentManager, @NonNull List<Fragment> fragmentList) {
+        super(fragmentManager);
+
+        this.fragmentList = fragmentList;
     }
 
+    // **********************************
+    // Overrides
+    // **********************************
     @Override
     public Fragment getItem(int position) {
-        return this.fragments.get(position);
+        return fragmentList.get(position);
     }
 
     @Override
     public int getCount() {
-        return this.fragments.size();
+        return fragmentList.size();
     }
 
     @NonNull
-    public List<Fragment> getFragments() {
-        return fragments;
+    public List<Fragment> getFragmentList() {
+        return fragmentList;
     }
-
-
 }

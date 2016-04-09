@@ -8,46 +8,57 @@ import android.widget.ProgressBar;
 
 import com.SearingMedia.featurepager.R;
 
-public class ProgressIndicatorController implements IndicatorController {
+public class ProgressIndicatorController implements IndicatorControllerInterface {
+    // Constants
     public final static int DEFAULT_COLOR = 1;
-    private static final int FIRST_PAGE_NUM = 0;
+    private final static int FIRST_PAGE_NUM = 0;
 
-    private ProgressBar mProgressBar;
+    // Variables
     int selectedDotColor = DEFAULT_COLOR;
     int unselectedDotColor = DEFAULT_COLOR;
 
+    // Views
+    private ProgressBar progressBar;
+
+    // **********************************
+    // Implementations
+    // **********************************
     @Override
     public View newInstance(@NonNull Context context) {
-        mProgressBar = (ProgressBar) View.inflate(context, R.layout.progress_indicator, null);
-        if (selectedDotColor != DEFAULT_COLOR)
-            mProgressBar.getProgressDrawable().setColorFilter(selectedDotColor, PorterDuff.Mode.SRC_IN);
-        if (unselectedDotColor != DEFAULT_COLOR)
-            mProgressBar.getIndeterminateDrawable().setColorFilter(unselectedDotColor, PorterDuff.Mode.SRC_IN);
-        return mProgressBar;
+        progressBar = (ProgressBar) View.inflate(context, R.layout.progress_indicator, null);
+        if (selectedDotColor != DEFAULT_COLOR) {
+            progressBar.getProgressDrawable().setColorFilter(selectedDotColor, PorterDuff.Mode.SRC_IN);
+        }
+        if (unselectedDotColor != DEFAULT_COLOR) {
+            progressBar.getIndeterminateDrawable().setColorFilter(unselectedDotColor, PorterDuff.Mode.SRC_IN);
+        }
+        return progressBar;
     }
 
     @Override
     public void initialize(int slideCount) {
-        mProgressBar.setMax(slideCount);
+        progressBar.setMax(slideCount);
         selectPosition(FIRST_PAGE_NUM);
     }
 
     @Override
     public void selectPosition(int index) {
-        mProgressBar.setProgress(index + 1);
+        progressBar.setProgress(index + 1);
     }
 
     @Override
     public void setSelectedIndicatorColor(int color) {
         this.selectedDotColor = color;
-        if (mProgressBar != null)
-            mProgressBar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (progressBar != null) {
+            progressBar.getProgressDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        }
     }
 
     @Override
     public void setUnselectedIndicatorColor(int color) {
         this.unselectedDotColor = color;
-        if (mProgressBar != null)
-            mProgressBar.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (progressBar != null) {
+            progressBar.getIndeterminateDrawable().setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        }
     }
 }

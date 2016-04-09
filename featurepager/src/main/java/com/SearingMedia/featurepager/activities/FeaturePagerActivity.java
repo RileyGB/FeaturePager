@@ -27,7 +27,7 @@ import android.widget.Toast;
 
 import com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager;
 import com.SearingMedia.featurepager.controllers.DefaultIndicatorController;
-import com.SearingMedia.featurepager.controllers.IndicatorController;
+import com.SearingMedia.featurepager.controllers.IndicatorControllerInterface;
 import com.SearingMedia.featurepager.viewpager.FeaturePagerAdapter;
 import com.SearingMedia.featurepager.permissions.PermissionObject;
 import com.SearingMedia.featurepager.controllers.ProgressIndicatorController;
@@ -49,7 +49,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     protected List<ImageView> dots;
     protected int slidesNumber;
     protected Vibrator mVibrator;
-    protected IndicatorController mController;
+    protected IndicatorControllerInterface mController;
     protected boolean isVibrateOn = false;
     protected int vibrateIntensity = 20;
     protected boolean skipButtonEnabled = true;
@@ -248,7 +248,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
 
     @NonNull
     public List<Fragment> getSlides() {
-        return featurePagerAdapter.getFragments();
+        return featurePagerAdapter.getFragmentList();
     }
 
     public boolean isProgressButtonEnabled() {
@@ -492,12 +492,12 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     }
 
     /**
-     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link FeaturePagerActivity} instead of the
+     * Set a custom {@link IndicatorControllerInterface} to use a custom indicator view for the {@link FeaturePagerActivity} instead of the
      * default one.
      *
      * @param controller The controller to use
      */
-    public void setCustomIndicator(@NonNull IndicatorController controller) {
+    public void setCustomIndicator(@NonNull IndicatorControllerInterface controller) {
         mController = controller;
     }
 

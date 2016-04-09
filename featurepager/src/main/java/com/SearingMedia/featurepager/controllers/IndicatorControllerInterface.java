@@ -9,15 +9,15 @@ import com.SearingMedia.featurepager.activities.FeaturePagerIconicActivity;
 
 /**
  * A controller that is used to provide custom indicator implementations and to control their behaviour.
- * This is used for {@link FeaturePagerActivity#setCustomIndicator(IndicatorController)} and
- * {@link FeaturePagerIconicActivity#setCustomIndicator(IndicatorController)}
+ * This is used for {@link FeaturePagerActivity#setCustomIndicator(IndicatorControllerInterface)} and
+ * {@link FeaturePagerIconicActivity#setCustomIndicator(IndicatorControllerInterface)}
  */
-public interface IndicatorController {
+public interface IndicatorControllerInterface {
     /**
      * Create a new instance of the view to be inserted in the AppIntro layout.
      * This method is only called once for each creation of the activity.
      * <p/>
-     * {@link IndicatorController#initialize(int)} is called after this.
+     * {@link IndicatorControllerInterface#initialize(int)} is called after this.
      *
      * @param context A context to be used for the view instantiation
      * @return An instance of the indicator view
@@ -26,10 +26,10 @@ public interface IndicatorController {
 
     /**
      * Initialize the indicator view with the requested amount of elements.
-     * As with {@link IndicatorController#newInstance(Context)}, this method is only called once for each creation of
+     * As with {@link IndicatorControllerInterface#newInstance(Context)}, this method is only called once for each creation of
      * the activity as well.
      * <p/>
-     * {@link IndicatorController#newInstance(Context)} is called before this.
+     * {@link IndicatorControllerInterface#newInstance(Context)} is called before this.
      *
      * @param slideCount The amount of slides present in the AppIntro
      */

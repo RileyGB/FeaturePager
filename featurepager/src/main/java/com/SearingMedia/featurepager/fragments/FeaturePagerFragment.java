@@ -14,44 +14,56 @@ import android.widget.TextView;
 import com.SearingMedia.featurepager.R;
 
 public class FeaturePagerFragment extends Fragment {
-
+    // Constants
     private static final String ARG_TITLE = "title";
     private static final String ARG_DESC = "desc";
     private static final String ARG_DRAWABLE = "drawable";
     private static final String ARG_BG_COLOR = "bg_color";
     private static final String PAGE = "page";
 
+    // Variables
+    private int drawableResId;
+    private int backgroundColor;
+    private CharSequence title;
+    private CharSequence description;
     private int pageNumber;
 
-    public static FeaturePagerFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int page) {
-        FeaturePagerFragment sampleSlide = new FeaturePagerFragment();
-
-        Bundle args = new Bundle();
-        args.putCharSequence(ARG_TITLE, title);
-        args.putCharSequence(ARG_DESC, description);
-        args.putInt(ARG_DRAWABLE, imageDrawable);
-        args.putInt(ARG_BG_COLOR, bgColor);
-        args.putInt(PAGE, page);
-        sampleSlide.setArguments(args);
-
-        return sampleSlide;
-    }
-
-    private int drawable, bgColor;
-    private CharSequence title, description;
-
+    // **********************************
+    // Constructor
+    // **********************************
     public FeaturePagerFragment() {
+
     }
 
+    // **********************************
+    // Instantiation
+    // **********************************
+    public static FeaturePagerFragment newInstance(CharSequence title, CharSequence description, int imageDrawable, int bgColor, int page) {
+        FeaturePagerFragment featurePagerFragment = new FeaturePagerFragment();
+
+        Bundle bundle = new Bundle();
+        bundle.putCharSequence(ARG_TITLE, title);
+        bundle.putCharSequence(ARG_DESC, description);
+        bundle.putInt(ARG_DRAWABLE, imageDrawable);
+        bundle.putInt(ARG_BG_COLOR, bgColor);
+        bundle.putInt(PAGE, page);
+        featurePagerFragment.setArguments(bundle);
+
+        return featurePagerFragment;
+    }
+
+    // **********************************
+    // Lifecycle
+    // **********************************
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null && getArguments().size() != 0) {
-            drawable = getArguments().getInt(ARG_DRAWABLE);
+            drawableResId = getArguments().getInt(ARG_DRAWABLE);
             title = getArguments().getCharSequence(ARG_TITLE);
             description = getArguments().getCharSequence(ARG_DESC);
-            bgColor = getArguments().getInt(ARG_BG_COLOR);
+            backgroundColor = getArguments().getInt(ARG_BG_COLOR);
             pageNumber = getArguments().getInt(PAGE);
         }
     }
@@ -68,8 +80,8 @@ public class FeaturePagerFragment extends Fragment {
         titleTextView.setText(title);
         descriptionTextView.setText(description);
 
-        imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawable));
-        mainLinearLayout.setBackgroundColor(bgColor);
+        imageView.setImageDrawable(ContextCompat.getDrawable(getActivity(), drawableResId));
+        mainLinearLayout.setBackgroundColor(backgroundColor);
 
         view.setTag(pageNumber);
 

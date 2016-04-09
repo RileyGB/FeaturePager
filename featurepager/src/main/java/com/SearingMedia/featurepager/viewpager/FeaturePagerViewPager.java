@@ -11,21 +11,28 @@ import com.SearingMedia.featurepager.scrollers.CustomDurationScroller;
 import java.lang.reflect.Field;
 
 public class FeaturePagerViewPager extends ViewPager {
-
-    private boolean pagingEnabled;
-    private boolean nextPagingEnabled;
+    // Variables
+    private boolean isPagingEnabled;
+    private boolean isNextPagingEnabled;
     private float initialXValue;
     private int lockPage;
     protected OnPageChangeListener listener;
+    private CustomDurationScroller customDurationScroller;
 
+    // **********************************
+    // Constructors
+    // **********************************
     public FeaturePagerViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        pagingEnabled = true;
-        nextPagingEnabled = true;
+        isPagingEnabled = true;
+        isNextPagingEnabled = true;
         lockPage = 0;
         initViewPagerScroller();
     }
 
+    // **********************************
+    // Overrides
+    // **********************************
     @Override
     public void addOnPageChangeListener(OnPageChangeListener listener) {
         super.addOnPageChangeListener(listener);
@@ -42,13 +49,15 @@ public class FeaturePagerViewPager extends ViewPager {
         // the listener won't be called so we call it on our own
         boolean invokeMeLater = false;
 
-        if (super.getCurrentItem() == 0 && item == 0)
+        if (super.getCurrentItem() == 0 && item == 0) {
             invokeMeLater = true;
+        }
 
         super.setCurrentItem(item);
 
-        if (invokeMeLater && listener != null)
+        if (invokeMeLater && listener != null) {
             listener.onPageSelected(0);
+        }
     }
 
     @Override
@@ -69,12 +78,15 @@ public class FeaturePagerViewPager extends ViewPager {
         return super.onTouchEvent(event);
     }
 
+    // **********************************
+    // Helpers
+    // **********************************
     private boolean checkPagingState(MotionEvent event) {
-        if (!pagingEnabled) {
+        if (!isPagingEnabled) {
             return true;
         }
 
-        if (!nextPagingEnabled) {
+        if (!isNextPagingEnabled) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 initialXValue = event.getX();
             }
@@ -84,21 +96,22 @@ public class FeaturePagerViewPager extends ViewPager {
                 }
             }
         }
+
         return false;
     }
-
-    // To enable/disable swipe
+    /**
+     * Enables or disables swiping to next page
+     * @param nextPagingEnabled
+     */
     public void setNextPagingEnabled(boolean nextPagingEnabled) {
-        this.nextPagingEnabled = nextPagingEnabled;
+        this.isNextPagingEnabled = nextPagingEnabled;
         if (!nextPagingEnabled) {
             lockPage = getCurrentItem();
         }
     }
-    private CustomDurationScroller mScroller = null;
 
     /**
-     * Override the Scroller instance with our own class so we can change the
-     * duration
+     * Override the Scroller instance with our own class so we can change the duration
      */
     private void initViewPagerScroller() {
         try {
@@ -107,43 +120,20 @@ public class FeaturePagerViewPager extends ViewPager {
             Field interpolator = ViewPager.class.getDeclaredField("sInterpolator");
             interpolator.setAccessible(true);
 
-            mScroller = new CustomDurationScroller(getContext(),
+            customDurationScroller = new CustomDurationScroller(getContext(),
                     (Interpolator) interpolator.get(null));
-            scroller.set(this, mScroller);
+            scroller.set(this, customDurationScroller);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     /**
-     * Set the factor by which the duration will change
+     * Detects the direction of swipe. Right or left.
+     * Returns true if swipe is in right direction
+     * @param event
+     * @return
      */
-    public void setScrollDurationFactor(double scrollFactor) {
-        mScroller.setScrollDurationFactor(scrollFactor);
-    }
-
-    public boolean isNextPagingEnabled() {
-        return nextPagingEnabled;
-    }
-
-    public boolean isPagingEnabled() {
-        return pagingEnabled;
-    }
-
-    public void setPagingEnabled(boolean pagingEnabled) {
-        this.pagingEnabled = pagingEnabled;
-    }
-
-    public int getLockPage() {
-        return lockPage;
-    }
-
-    public void setLockPage(int lockPage) {
-        this.lockPage = lockPage;
-    }
-
-    // Detects the direction of swipe. Right or left.
-    // Returns true if swipe is in right direction
     private boolean detectSwipeToRight(MotionEvent event) {
         final int SWIPE_THRESHOLD = 0; // detect swipe
         boolean result = false;
@@ -161,4 +151,35 @@ public class FeaturePagerViewPager extends ViewPager {
         }
         return result;
     }
+
+    // **********************************
+    // Getters / Setters
+    // **********************************
+    /**
+     * Set the factor by which the duration will change
+     */
+    public void setScrollDurationFactor(double scrollFactor) {
+        customDurationScroller.setScrollDurationFactor(scrollFactor);
+    }
+
+    public boolean isNextPagingEnabled() {
+        return isNextPagingEnabled;
+    }
+
+    public boolean isPagingEnabled() {
+        return isPagingEnabled;
+    }
+
+    public void setPagingEnabled(boolean pagingEnabled) {
+        this.isPagingEnabled = pagingEnabled;
+    }
+
+    public int getLockPage() {
+        return lockPage;
+    }
+
+    public void setLockPage(int lockPage) {
+        this.lockPage = lockPage;
+    }
+
 }

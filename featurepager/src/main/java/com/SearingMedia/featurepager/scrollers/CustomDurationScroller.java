@@ -7,8 +7,12 @@ import android.widget.Scroller;
 
 public class CustomDurationScroller extends Scroller {
 
-    private double mScrollFactor = 6;
+    // Variables
+    private double scrollDurationFactor = 6;
 
+    // **********************************
+    // Constructors
+    // **********************************
     public CustomDurationScroller(Context context) {
         super(context);
     }
@@ -22,16 +26,22 @@ public class CustomDurationScroller extends Scroller {
         super(context, interpolator, flywheel);
     }
 
+    // **********************************
+    // Overrides
+    // **********************************
+    @Override
+    public void startScroll(int startX, int startY, int dx, int dy, int duration) {
+        super.startScroll(startX, startY, dx, dy, (int) (duration * scrollDurationFactor));
+    }
+
+    // **********************************
+    // Setters
+    // **********************************
+
     /**
      * Set the factor by which the duration will change
      */
     public void setScrollDurationFactor(double scrollFactor) {
-        mScrollFactor = scrollFactor;
+        scrollDurationFactor = scrollFactor;
     }
-
-    @Override
-    public void startScroll(int startX, int startY, int dx, int dy, int duration) {
-        super.startScroll(startX, startY, dx, dy, (int) (duration * mScrollFactor));
-    }
-
 }
