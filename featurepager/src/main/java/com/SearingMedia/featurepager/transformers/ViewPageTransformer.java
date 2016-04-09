@@ -13,22 +13,13 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     private static final float SCALE_FACTOR_SLIDE = 0.85f;
     private static final float MIN_ALPHA_SLIDE = 0.35f;
 
-    // Enums
-    public enum TransformType {
-        FLOW,
-        DEPTH,
-        ZOOM,
-        SLIDE_OVER,
-        FADE
-    }
-
     // Variables
-    private final TransformType transformType;
+    private final TransformerType transformType;
 
     // **********************************
     // Constructors
     // **********************************
-    public ViewPageTransformer(TransformType transformType) {
+    public ViewPageTransformer(TransformerType transformType) {
         this.transformType = transformType;
     }
 
