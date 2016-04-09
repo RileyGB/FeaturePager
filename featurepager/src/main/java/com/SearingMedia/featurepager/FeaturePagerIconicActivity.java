@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-public abstract class AppIntro2 extends AppCompatActivity {
+public abstract class FeaturePagerIconicActivity extends AppCompatActivity {
     public final static int DEFAULT_COLOR = 1;
     private static final int DEFAULT_SCROLL_DURATION_FACTOR = 1;
     private boolean STATUS_BAR_VISIBLE = false;
@@ -41,6 +41,7 @@ public abstract class AppIntro2 extends AppCompatActivity {
     protected boolean progressButtonEnabled = true;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
+    protected View nextButton;
     protected View doneButton;
     protected View customBackgroundView;
     protected FrameLayout backgroundFrame;
@@ -64,6 +65,7 @@ public abstract class AppIntro2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.intro_layout2);
 
+        nextButton = findViewById(R.id.next);
         doneButton = findViewById(R.id.done);
         backgroundFrame = (FrameLayout) findViewById(R.id.background);
         mVibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
@@ -74,6 +76,37 @@ public abstract class AppIntro2 extends AppCompatActivity {
         if (savedInstanceState != null) {
             restoreLockingState(savedInstanceState);
         }
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(@NonNull View v) {
+                if (isVibrateOn) {
+                    mVibrator.vibrate(vibrateIntensity);
+                }
+
+                boolean requestPermission = false;
+                int position = 0;
+
+                for (int i = 0; i < permissionsArray.size(); i++) {
+                    requestPermission = pager.getCurrentItem() + 1 == permissionsArray.get(i).getPosition();
+                    position = i;
+                    break;
+                }
+
+                if (requestPermission) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(permissionsArray.get(position).getPermission(), PERMISSIONS_REQUEST_ALL_PERMISSIONS);
+                        permissionsArray.remove(position);
+                    } else {
+                        pager.setCurrentItem(pager.getCurrentItem() + 1);
+                        onNextPressed();
+                    }
+                } else {
+                    pager.setCurrentItem(pager.getCurrentItem() + 1);
+                    onNextPressed();
+                }
+            }
+        });
 
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,6 +220,38 @@ public abstract class AppIntro2 extends AppCompatActivity {
         return mPagerAdapter.getFragments();
     }
 
+    /**
+     * Shows or hides Done button, replaced with setProgressButtonEnabled
+     *
+     * @deprecated use {@link #setProgressButtonEnabled(boolean)} instead.
+     */
+    @Deprecated
+    public void showDoneButton(boolean showDone) {
+        setProgressButtonEnabled(showDone);
+    }
+
+    /**
+     * Setting to to display or hide the Next or Done button. This is a static setting and
+     * button state is maintained across slides until explicitly changed.
+     *
+     * @param progressButtonEnabled Set true to display. False to hide.
+     */
+    public void setProgressButtonEnabled(boolean progressButtonEnabled) {
+        this.progressButtonEnabled = progressButtonEnabled;
+        if (progressButtonEnabled) {
+            if (pager.getCurrentItem() == slidesNumber - 1) {
+                setButtonState(nextButton, false);
+                setButtonState(doneButton, true);
+            } else {
+                setButtonState(nextButton, true);
+                setButtonState(doneButton, false);
+            }
+        } else {
+            setButtonState(nextButton, false);
+            setButtonState(doneButton, false);
+        }
+    }
+
     public boolean isProgressButtonEnabled() {
         return progressButtonEnabled;
     }
@@ -267,7 +332,7 @@ public abstract class AppIntro2 extends AppCompatActivity {
     }
 
     /**
-     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link AppIntro2} instead of the
+     * Set a custom {@link IndicatorController} to use a custom indicator view for the {@link FeaturePagerIconicActivity} instead of the
      * default one.
      *
      * @param controller The controller to use

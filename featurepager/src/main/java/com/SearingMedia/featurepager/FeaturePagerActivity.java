@@ -1,10 +1,12 @@
 package com.SearingMedia.featurepager;
 
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -46,6 +49,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
     protected View skipButton;
+    protected View nextButton;
     protected View doneButton;
     protected int savedCurrentItem;
     protected ArrayList<PermissionObject> permissionsArray = new ArrayList<>();
@@ -69,6 +73,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
         setContentView(R.layout.intro_layout);
 
         skipButton = findViewById(R.id.skip);
+        nextButton = findViewById(R.id.next);
         doneButton = findViewById(R.id.done);
         mVibrator = (Vibrator) this.getSystemService(VIBRATOR_SERVICE);
         mPagerAdapter = new PagerAdapter(getSupportFragmentManager(), fragments);
@@ -86,6 +91,37 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
                     mVibrator.vibrate(vibrateIntensity);
                 }
                 onSkipPressed();
+            }
+        });
+
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(@NonNull View v) {
+                if (isVibrateOn) {
+                    mVibrator.vibrate(vibrateIntensity);
+                }
+
+                boolean requestPermission = false;
+                int position = 0;
+
+                for (int i = 0; i < permissionsArray.size(); i++) {
+                    requestPermission = pager.getCurrentItem() + 1 == permissionsArray.get(i).getPosition();
+                    position = i;
+                    break;
+                }
+
+                if (requestPermission) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        requestPermissions(permissionsArray.get(position).getPermission(), PERMISSIONS_REQUEST_ALL_PERMISSIONS);
+                        permissionsArray.remove(position);
+                    } else {
+                        pager.setCurrentItem(pager.getCurrentItem() + 1);
+                        onNextPressed();
+                    }
+                } else {
+                    pager.setCurrentItem(pager.getCurrentItem() + 1);
+                    onNextPressed();
+                }
             }
         });
 
@@ -244,6 +280,28 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     }
 
     /**
+     * Setting to to display or hide the Next or Done button. This is a static setting and
+     * button state is maintained across slides until explicitly changed.
+     *
+     * @param progressButtonEnabled Set true to display. False to hide.
+     */
+    public void setProgressButtonEnabled(boolean progressButtonEnabled) {
+        this.progressButtonEnabled = progressButtonEnabled;
+        if (progressButtonEnabled) {
+            if (pager.getCurrentItem() == slidesNumber - 1) {
+                setButtonState(nextButton, false);
+                setButtonState(doneButton, true);
+            } else {
+                setButtonState(nextButton, true);
+                setButtonState(doneButton, false);
+            }
+        } else {
+            setButtonState(nextButton, false);
+            setButtonState(doneButton, false);
+        }
+    }
+
+    /**
      * Override viewpager bar color
      *
      * @param color your color resource
@@ -252,7 +310,18 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
         LinearLayout bottomBar = (LinearLayout) findViewById(R.id.bottom);
         bottomBar.setBackgroundColor(color);
     }
-    
+
+    /**
+     * Override next button arrow color
+     *
+     * @param color your color
+     *
+     */
+    public void setNextArrowColor(@ColorInt final int color) {
+        ImageButton nextButton = (ImageButton) findViewById(R.id.next);
+        nextButton.setColorFilter(color);
+    }
+
     /**
      * Override separator color
      *
@@ -301,6 +370,17 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     public void setColorSkipButton(@ColorInt final int colorSkipButton) {
         TextView skip = (TextView) findViewById(R.id.skip);
         skip.setTextColor(colorSkipButton);
+    }
+
+    /**
+     * Override Next button
+     *
+     * @param imageNextButton your drawable resource
+     */
+    public void setImageNextButton(@DrawableRes final Drawable imageNextButton) {
+        final ImageView nextButton = (ImageView) findViewById(R.id.next);
+        nextButton.setImageDrawable(imageNextButton);
+
     }
 
     /**
