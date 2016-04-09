@@ -14,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -24,19 +23,16 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.SearingMedia.featurepager.R;
 import com.SearingMedia.featurepager.controllers.DefaultIndicatorController;
 import com.SearingMedia.featurepager.controllers.IndicatorControllerInterface;
 import com.SearingMedia.featurepager.controllers.ProgressIndicatorController;
-import com.SearingMedia.featurepager.permissions.PermissionObject;
 import com.SearingMedia.featurepager.transformers.TransformerType;
 import com.SearingMedia.featurepager.transformers.ViewPageTransformer;
 import com.SearingMedia.featurepager.viewpager.FeaturePagerAdapter;
 import com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -49,7 +45,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     // Variables
     protected FeaturePagerAdapter featurePagerAdapter;
-    protected FeaturePagerViewPager pager;
+    protected FeaturePagerViewPager viewPager;
     protected IndicatorControllerInterface indicatorController;
     protected boolean skipButtonEnabled = true;
     protected boolean isNextButtonEnabled = true;
@@ -61,7 +57,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected int slidesNumber;
     protected int savedCurrentItem;
     protected List<Fragment> fragmentsList = new Vector<>();
-    protected List<PermissionObject> permissionsArray = new ArrayList<>();
     protected List<Integer> backgroundColorList;
     protected ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
@@ -75,19 +70,21 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     // **********************************
     // Abstract Methods
     // **********************************
-    public @LayoutRes abstract int getLayoutId();
+    public
+    @LayoutRes
+    abstract int getLayoutId();
 
     public abstract void onPreCreate(@Nullable Bundle savedInstanceState);
 
     public abstract void init(@Nullable Bundle savedInstanceState);
 
-    public abstract void onSkipPressed();
+    public abstract void onSkipPressed(int slideIndex);
 
-    public abstract void onNextPressed();
+    public abstract void onNextPressed(int slideIndex);
 
-    public abstract void onDonePressed();
+    public abstract void onDonePressed(int slideIndex);
 
-    public abstract void onSlideChanged();
+    public abstract void onSlideChanged(int slideIndex);
 
     // **********************************
     // Lifecycle
@@ -118,10 +115,10 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         outState.putBoolean("progressButtonEnabled", progressButtonEnabled);
         outState.putBoolean("skipButtonEnabled", skipButtonEnabled);
         outState.putBoolean("nextButtonEnabled", skipButtonEnabled);
-        outState.putBoolean("nextEnabled", pager.isPagingEnabled());
-        outState.putBoolean("nextPagingEnabled", pager.isNextPagingEnabled());
-        outState.putInt("lockPage", pager.getLockPage());
-        outState.putInt("currentItem", pager.getCurrentItem());
+        outState.putBoolean("nextEnabled", viewPager.isPagingEnabled());
+        outState.putBoolean("nextPagingEnabled", viewPager.isNextPagingEnabled());
+        outState.putInt("lockPage", viewPager.getLockPage());
+        outState.putInt("currentItem", viewPager.getCurrentItem());
     }
 
     // **********************************
@@ -132,7 +129,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
             ViewPager viewPager = (ViewPager) this.findViewById(R.id.view_pager);
             if (viewPager.getCurrentItem() == viewPager.getAdapter().getCount() - 1) {
-                onDonePressed();
+                onDonePressed(viewPager.getCurrentItem());
             } else {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             }
@@ -153,8 +150,8 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     private void initializePagerAdapter() {
         featurePagerAdapter = new FeaturePagerAdapter(getSupportFragmentManager(), fragmentsList);
-        pager = (FeaturePagerViewPager) findViewById(R.id.view_pager);
-        pager.setAdapter(this.featurePagerAdapter);
+        viewPager = (FeaturePagerViewPager) findViewById(R.id.view_pager);
+        viewPager.setAdapter(featurePagerAdapter);
     }
 
     private void setButtonClickListeners() {
@@ -177,7 +174,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                onSkipPressed();
+                onSkipPressed(viewPager.getCurrentItem());
             }
         });
     }
@@ -190,27 +187,8 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                boolean requestPermission = false;
-                int position = 0;
-
-                for (int i = 0; i < permissionsArray.size(); i++) {
-                    requestPermission = pager.getCurrentItem() + 1 == permissionsArray.get(i).getPosition();
-                    position = i;
-                    break;
-                }
-
-                if (requestPermission) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        requestPermissions(permissionsArray.get(position).getPermission(), PERMISSIONS_REQUEST_ALL_PERMISSIONS);
-                        permissionsArray.remove(position);
-                    } else {
-                        pager.setCurrentItem(pager.getCurrentItem() + 1);
-                        onNextPressed();
-                    }
-                } else {
-                    pager.setCurrentItem(pager.getCurrentItem() + 1);
-                    onNextPressed();
-                }
+                onNextPressed(viewPager.getCurrentItem());
+                viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             }
         });
     }
@@ -223,20 +201,20 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                onDonePressed();
+                onDonePressed(viewPager.getCurrentItem());
             }
         });
     }
 
     private void initializeViewPager() {
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 if (backgroundColorList != null) {
-                    if (position < (pager.getAdapter().getCount() - 1) && position < (backgroundColorList.size() - 1)) {
-                        pager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, backgroundColorList.get(position), backgroundColorList.get(position + 1)));
+                    if (position < (viewPager.getAdapter().getCount() - 1) && position < (backgroundColorList.size() - 1)) {
+                        viewPager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, backgroundColorList.get(position), backgroundColorList.get(position + 1)));
                     } else {
-                        pager.setBackgroundColor(backgroundColorList.get(backgroundColorList.size() - 1));
+                        viewPager.setBackgroundColor(backgroundColorList.get(backgroundColorList.size() - 1));
                     }
                 }
             }
@@ -247,10 +225,10 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                     indicatorController.selectPosition(position);
                 }
 
-                if (!pager.isNextPagingEnabled()) {
-                    if (pager.getCurrentItem() != pager.getLockPage()) {
+                if (!viewPager.isNextPagingEnabled()) {
+                    if (viewPager.getCurrentItem() != viewPager.getLockPage()) {
                         setProgressButtonEnabled(baseProgressButtonEnabled);
-                        pager.setNextPagingEnabled(true);
+                        viewPager.setNextPagingEnabled(true);
                     } else {
                         setProgressButtonEnabled(progressButtonEnabled);
                     }
@@ -259,7 +237,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                 }
 
                 setViewVisible(skipButton, skipButtonEnabled);
-                onSlideChanged();
+                onSlideChanged(position);
             }
 
             @Override
@@ -268,7 +246,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             }
         });
 
-        pager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
+        viewPager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
     }
 
     private void initializeSlides() {
@@ -290,9 +268,9 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         this.isNextButtonEnabled = savedInstanceState.getBoolean("nextButtonEnabled");
         this.savedCurrentItem = savedInstanceState.getInt("currentItem");
 
-        pager.setPagingEnabled(savedInstanceState.getBoolean("nextEnabled"));
-        pager.setNextPagingEnabled(savedInstanceState.getBoolean("nextPagingEnabled"));
-        pager.setLockPage(savedInstanceState.getInt("lockPage"));
+        viewPager.setPagingEnabled(savedInstanceState.getBoolean("nextEnabled"));
+        viewPager.setNextPagingEnabled(savedInstanceState.getBoolean("nextPagingEnabled"));
+        viewPager.setLockPage(savedInstanceState.getInt("lockPage"));
     }
 
     private void initController() {
@@ -335,10 +313,9 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     private void setViewVisible(View view, boolean shouldShowView) {
-        if(view == null) {
+        if (view == null) {
             // Don't set state
-        }
-        else if (shouldShowView) {
+        } else if (shouldShowView) {
             view.setVisibility(View.VISIBLE);
         } else {
             view.setVisibility(View.INVISIBLE);
@@ -346,7 +323,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     public void setOffScreenPageLimit(int limit) {
-        pager.setOffscreenPageLimit(limit);
+        viewPager.setOffscreenPageLimit(limit);
     }
 
     /**
@@ -362,7 +339,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             setViewVisible(nextButton, false);
             setViewVisible(doneButton, true);
         } else if (progressButtonEnabled) {
-            if (pager.getCurrentItem() == slidesNumber - 1) {
+            if (viewPager.getCurrentItem() == slidesNumber - 1) {
                 setViewVisible(nextButton, false);
                 setViewVisible(doneButton, true);
             } else {
@@ -554,35 +531,35 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      * Sets the animation of the intro to a fade animation
      */
     public void setFadeAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(TransformerType.FADE));
+        viewPager.setPageTransformer(true, new ViewPageTransformer(TransformerType.FADE));
     }
 
     /**
      * Sets the animation of the intro to a zoom animation
      */
     public void setZoomAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(TransformerType.ZOOM));
+        viewPager.setPageTransformer(true, new ViewPageTransformer(TransformerType.ZOOM));
     }
 
     /**
      * Sets the animation of the intro to a flow animation
      */
     public void setFlowAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(TransformerType.FLOW));
+        viewPager.setPageTransformer(true, new ViewPageTransformer(TransformerType.FLOW));
     }
 
     /**
      * Sets the animation of the intro to a Slide Over animation
      */
     public void setSlideOverAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(TransformerType.SLIDE_OVER));
+        viewPager.setPageTransformer(true, new ViewPageTransformer(TransformerType.SLIDE_OVER));
     }
 
     /**
      * Sets the animation of the intro to a Depth animation
      */
     public void setDepthAnimation() {
-        pager.setPageTransformer(true, new ViewPageTransformer(TransformerType.DEPTH));
+        viewPager.setPageTransformer(true, new ViewPageTransformer(TransformerType.DEPTH));
     }
 
     /**
@@ -591,7 +568,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
      * @param transformer your custom transformer
      */
     public void setCustomTransformer(@Nullable ViewPager.PageTransformer transformer) {
-        pager.setPageTransformer(true, transformer);
+        viewPager.setPageTransformer(true, transformer);
     }
 
     /**
@@ -632,7 +609,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             // if unlocking, restore original button visibility
             setProgressButtonEnabled(baseProgressButtonEnabled);
         }
-        pager.setNextPagingEnabled(!lockEnable);
+        viewPager.setNextPagingEnabled(!lockEnable);
     }
 
     /**
@@ -650,40 +627,14 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             // if unlocking, restore original button visibility
             setProgressButtonEnabled(baseProgressButtonEnabled);
         }
-        pager.setPagingEnabled(!lockEnable);
+        viewPager.setPagingEnabled(!lockEnable);
     }
 
     protected void setScrollDurationFactor(int factor) {
-        pager.setScrollDurationFactor(factor);
+        viewPager.setScrollDurationFactor(factor);
     }
 
-    public FeaturePagerViewPager getPager() {
-        return pager;
-    }
-
-    // **********************************
-    // Permissions
-    // **********************************
-    public void askForPermissions(String[] permissions, int slidesNumber) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (slidesNumber == 0) {
-                Toast.makeText(getBaseContext(), "Invalid Slide Number", Toast.LENGTH_SHORT).show();
-            } else {
-                PermissionObject permission = new PermissionObject(permissions, slidesNumber);
-                permissionsArray.add(permission);
-                setSwipeLock(true);
-            }
-        }
-    }
-
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSIONS_REQUEST_ALL_PERMISSIONS:
-                pager.setCurrentItem(pager.getCurrentItem() + 1);
-                break;
-            default:
-                Log.e(TAG, "Unexpected request code");
-        }
+    public FeaturePagerViewPager getViewPager() {
+        return viewPager;
     }
 }
