@@ -40,7 +40,6 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     // Constants
     public final static int DEFAULT_COLOR = 1;
     private final static int DEFAULT_SCROLL_DURATION_FACTOR = 1;
-    private final static int PERMISSIONS_REQUEST_ALL_PERMISSIONS = 1;
     private final static String TAG = "FPBaseActivity";
 
     // Variables
@@ -54,7 +53,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected boolean isStatusBarVisible = false;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
-    protected int slidesNumber;
+    protected int fragmentNumber;
     protected int savedCurrentItem;
     protected List<Fragment> fragmentsList = new Vector<>();
     protected List<Integer> backgroundColorList;
@@ -78,13 +77,13 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public abstract void init(@Nullable Bundle savedInstanceState);
 
-    public abstract void onSkipPressed(int slideIndex);
+    public abstract void onSkipClicked(int fragmentIndex);
 
-    public abstract void onNextPressed(int slideIndex);
+    public abstract void onNextClicked(int fragmentIndex);
 
-    public abstract void onDonePressed(int slideIndex);
+    public abstract void onDoneClicked(int fragmentIndex);
 
-    public abstract void onSlideChanged(int slideIndex);
+    public abstract void onPageChanged(int fragmentIndex);
 
     // **********************************
     // Lifecycle
@@ -104,7 +103,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         initializeViewPager();
         setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
         init(savedInstanceState);
-        initializeSlides();
+        initializeFragments();
     }
 
     @Override
@@ -129,7 +128,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         if (code == KeyEvent.KEYCODE_ENTER || code == KeyEvent.KEYCODE_BUTTON_A || code == KeyEvent.KEYCODE_DPAD_CENTER) {
             ViewPager viewPager = (ViewPager) this.findViewById(R.id.view_pager);
             if (viewPager.getCurrentItem() == viewPager.getAdapter().getCount() - 1) {
-                onDonePressed(viewPager.getCurrentItem());
+                onDoneClicked(viewPager.getCurrentItem());
             } else {
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             }
@@ -174,7 +173,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                onSkipPressed(viewPager.getCurrentItem());
+                onSkipClicked(viewPager.getCurrentItem());
             }
         });
     }
@@ -187,7 +186,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                onNextPressed(viewPager.getCurrentItem());
+                onNextClicked(viewPager.getCurrentItem());
                 viewPager.setCurrentItem(viewPager.getCurrentItem() + 1);
             }
         });
@@ -201,7 +200,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         doneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(@NonNull View v) {
-                onDonePressed(viewPager.getCurrentItem());
+                onDoneClicked(viewPager.getCurrentItem());
             }
         });
     }
@@ -221,7 +220,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                if (slidesNumber > 1) {
+                if (fragmentNumber > 1) {
                     indicatorController.selectPosition(position);
                 }
 
@@ -237,7 +236,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                 }
 
                 setViewVisible(skipButton, skipButtonEnabled);
-                onSlideChanged(position);
+                onPageChanged(position);
             }
 
             @Override
@@ -249,10 +248,10 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         viewPager.setCurrentItem(savedCurrentItem); //required for triggering onPageSelected for first page
     }
 
-    private void initializeSlides() {
-        slidesNumber = fragmentsList.size();
+    private void initializeFragments() {
+        fragmentNumber = fragmentsList.size();
 
-        if (slidesNumber == 1) {
+        if (fragmentNumber == 1) {
             setProgressButtonEnabled(progressButtonEnabled);
         } else {
             initController();
@@ -280,7 +279,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
         FrameLayout indicatorContainer = (FrameLayout) findViewById(R.id.indicator_container);
         indicatorContainer.addView(indicatorController.newInstance(this));
-        indicatorController.initialize(slidesNumber);
+        indicatorController.initialize(fragmentNumber);
 
         if (selectedIndicatorColor != DEFAULT_COLOR) {
             indicatorController.setSelectedIndicatorColor(selectedIndicatorColor);
@@ -290,7 +289,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         }
     }
 
-    public void addSlide(@NonNull Fragment fragment) {
+    public void addFragment(@NonNull Fragment fragment) {
         fragmentsList.add(fragment);
 
         featurePagerAdapter.notifyDataSetChanged();
@@ -300,7 +299,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     // Getters / Setters
     // **********************************
     @NonNull
-    public List<Fragment> getSlides() {
+    public List<Fragment> getFragmentList() {
         return featurePagerAdapter.getFragmentList();
     }
 
@@ -328,7 +327,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     /**
      * Setting to to display or hide the Next or Done button. This is a static setting and
-     * button state is maintained across slides until explicitly changed.
+     * button state is maintained across fragments until explicitly changed.
      *
      * @param progressButtonEnabled Set true to display. False to hide.
      */
@@ -339,7 +338,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             setViewVisible(nextButton, false);
             setViewVisible(doneButton, true);
         } else if (progressButtonEnabled) {
-            if (viewPager.getCurrentItem() == slidesNumber - 1) {
+            if (viewPager.getCurrentItem() == fragmentNumber - 1) {
                 setViewVisible(nextButton, false);
                 setViewVisible(doneButton, true);
             } else {
@@ -488,7 +487,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     /**
      * Setting to to display or hide the Skip button. This is a static setting and
-     * button state is maintained across slides until explicitly changed.
+     * button state is maintained across fragments until explicitly changed.
      *
      * @param showButton Set true to display. False to hide.
      */
@@ -499,7 +498,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     /**
      * Setting to to display or hide the Next button. This is a static setting and
-     * button state is maintained across slides until explicitly changed.
+     * button state is maintained across fragments until explicitly changed.
      *
      * @param isNextButtonEnabled Set true to display. False to hide.
      */
@@ -510,7 +509,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     /**
-     * Set a progress indicator instead of dots. This is recommended for a large amount of slides. In this case there
+     * Set a progress indicator instead of dots. This is recommended for a large amount of fragments. In this case there
      * could not be enough space to display all dots on smaller device screens.
      */
     public void setProgressIndicator() {
