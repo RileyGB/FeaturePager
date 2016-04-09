@@ -32,7 +32,7 @@ import java.util.Vector;
 public abstract class FeaturePagerActivity extends AppCompatActivity {
     public final static int DEFAULT_COLOR = 1;
     private static final int DEFAULT_SCROLL_DURATION_FACTOR = 1;
-    private static String TAG = "AppIntro1";
+    private static String TAG = "FeaturePagerActivity";
 
     protected PagerAdapter mPagerAdapter;
     protected AppIntroViewPager pager;
@@ -44,6 +44,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     protected boolean isVibrateOn = false;
     protected int vibrateIntensity = 20;
     protected boolean skipButtonEnabled = true;
+    protected boolean isNextButtonEnabled = true;
     protected boolean baseProgressButtonEnabled = true;
     protected boolean progressButtonEnabled = true;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
@@ -149,10 +150,15 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
                 if (slidesNumber > 1)
                     mController.selectPosition(position);
 
-                // Allow the swipe to be re-enabled if a user swipes to a previous slide. Restore
-                // state of progress button depending on global progress button setting
-                if (!pager.isNextPagingEnabled() && pager.getCurrentItem() != pager.getLockPage()) {
-                    pager.setNextPagingEnabled(true);
+                if (!pager.isNextPagingEnabled()) {
+                    if (pager.getCurrentItem() != pager.getLockPage()) {
+                        setProgressButtonEnabled(baseProgressButtonEnabled);
+                        pager.setNextPagingEnabled(true);
+                    } else {
+                        setProgressButtonEnabled(progressButtonEnabled);
+                    }
+                } else {
+                    setProgressButtonEnabled(progressButtonEnabled);
                 }
 
                 setButtonState(skipButton, skipButtonEnabled);
@@ -171,11 +177,12 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
         init(savedInstanceState);
         slidesNumber = fragments.size();
 
-        if (slidesNumber != 1) {
+        if (slidesNumber == 1) {
+            setProgressButtonEnabled(progressButtonEnabled);
+        } else {
             initController();
         }
     }
-
 
     protected void setScrollDurationFactor(int factor) {
         pager.setScrollDurationFactor(factor);
@@ -187,6 +194,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
         outState.putBoolean("baseProgressButtonEnabled", baseProgressButtonEnabled);
         outState.putBoolean("progressButtonEnabled", progressButtonEnabled);
         outState.putBoolean("skipButtonEnabled", skipButtonEnabled);
+        outState.putBoolean("nextButtonEnabled", skipButtonEnabled);
         outState.putBoolean("nextEnabled", pager.isPagingEnabled());
         outState.putBoolean("nextPagingEnabled", pager.isNextPagingEnabled());
         outState.putInt("lockPage", pager.getLockPage());
@@ -199,6 +207,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
         this.baseProgressButtonEnabled = savedInstanceState.getBoolean("baseProgressButtonEnabled");
         this.progressButtonEnabled = savedInstanceState.getBoolean("progressButtonEnabled");
         this.skipButtonEnabled = savedInstanceState.getBoolean("skipButtonEnabled");
+        this.isNextButtonEnabled = savedInstanceState.getBoolean("nextButtonEnabled");
         this.savedCurrentItem = savedInstanceState.getInt("currentItem");
         pager.setPagingEnabled(savedInstanceState.getBoolean("nextEnabled"));
         pager.setNextPagingEnabled(savedInstanceState.getBoolean("nextPagingEnabled"));
@@ -287,7 +296,12 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
      */
     public void setProgressButtonEnabled(boolean progressButtonEnabled) {
         this.progressButtonEnabled = progressButtonEnabled;
-        if (progressButtonEnabled) {
+
+        if(!isNextButtonEnabled) {
+            setButtonState(nextButton, false);
+            setButtonState(doneButton, true);
+        }
+        else if (progressButtonEnabled) {
             if (pager.getCurrentItem() == slidesNumber - 1) {
                 setButtonState(nextButton, false);
                 setButtonState(doneButton, true);
@@ -431,6 +445,17 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     }
 
     /**
+     * Setting to to display or hide the Next button. This is a static setting and
+     * button state is maintained across slides until explicitly changed.
+     *
+     * @param isNextButtonEnabled Set true to display. False to hide.
+     */
+    public void showNextButton(boolean isNextButtonEnabled) {
+        this.isNextButtonEnabled = isNextButtonEnabled;
+        setButtonState(nextButton, isNextButtonEnabled);
+    }
+
+    /**
      * sets vibration when buttons are pressed
      *
      * @param vibrationEnabled on/off
@@ -528,6 +553,43 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
             if (unselectedIndicatorColor != DEFAULT_COLOR)
                 mController.setUnselectedIndicatorColor(unselectedIndicatorColor);
         }
+    }
+
+    /**
+     * Setting to disable forward swiping right on current page and allow swiping left. If a swipe
+     * left occurs, the lock state is reset and swiping is re-enabled. (one shot disable) This also
+     * hides/shows the Next and Done buttons accordingly.
+     *
+     * @param lockEnable Set true to disable forward swiping. False to enable.
+     */
+    public void setNextPageSwipeLock(boolean lockEnable) {
+        if (lockEnable) {
+            // if locking, save current progress button visibility
+            baseProgressButtonEnabled = progressButtonEnabled;
+            setProgressButtonEnabled(!lockEnable);
+        } else {
+            // if unlocking, restore original button visibility
+            setProgressButtonEnabled(baseProgressButtonEnabled);
+        }
+        pager.setNextPagingEnabled(!lockEnable);
+    }
+
+    /**
+     * Setting to disable swiping left and right on current page. This also
+     * hides/shows the Next and Done buttons accordingly.
+     *
+     * @param lockEnable Set true to disable forward swiping. False to enable.
+     */
+    public void setSwipeLock(boolean lockEnable) {
+        if (lockEnable) {
+            // if locking, save current progress button visibility
+            baseProgressButtonEnabled = progressButtonEnabled;
+            //setProgressButtonEnabled(!lockEnable);
+        } else {
+            // if unlocking, restore original button visibility
+            setProgressButtonEnabled(baseProgressButtonEnabled);
+        }
+        pager.setPagingEnabled(!lockEnable);
     }
 
     public void askForPermissions(String[] permissions, int slidesNumber) {
