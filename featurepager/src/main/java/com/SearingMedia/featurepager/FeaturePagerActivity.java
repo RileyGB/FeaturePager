@@ -453,6 +453,7 @@ public abstract class FeaturePagerActivity extends AppCompatActivity {
     public void showNextButton(boolean isNextButtonEnabled) {
         this.isNextButtonEnabled = isNextButtonEnabled;
         setButtonState(nextButton, isNextButtonEnabled);
+        setProgressButtonEnabled(true);
     }
 
     /**
