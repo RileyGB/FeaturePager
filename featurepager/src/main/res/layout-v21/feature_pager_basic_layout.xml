@@ -15,9 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
         android:background="?android:attr/selectableItemBackground"
+        android:padding="8dp"
         android:src="@drawable/feature_pager_close_white"/>
 
     <LinearLayout
@@ -45,7 +44,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"/>
 
             <Button
                 android:id="@+id/skip"
