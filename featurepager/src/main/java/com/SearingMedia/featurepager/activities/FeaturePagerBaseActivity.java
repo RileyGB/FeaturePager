@@ -64,7 +64,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected View skipButton;
     protected View nextButton;
     protected View doneButton;
-    protected ImageButton closeButton;
+    protected ImageView closeButton;
     protected View customBackgroundView;
     protected FrameLayout backgroundFrame;
 
@@ -149,7 +149,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.next);
         backgroundFrame = (FrameLayout) findViewById(R.id.background);
         doneButton = findViewById(R.id.done);
-        closeButton = (ImageButton) findViewById(R.id.close_button);
+        closeButton = (ImageView) findViewById(R.id.close_button);
     }
 
     private void initializePagerAdapter() {

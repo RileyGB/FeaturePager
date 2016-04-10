@@ -4,20 +4,20 @@
                 android:layout_height="wrap_content"
                 android:background="#222222">
 
-    <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
-
-    <ImageButton
+    <ImageView
         android:id="@+id/close_button"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/feature_pager_close_white"/>
+
+    <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"/>
 
     <LinearLayout
         android:id="@+id/bottom"
