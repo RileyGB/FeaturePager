@@ -318,7 +318,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                 //noinspection StatementWithEmptyBody
                 if (!isIndicatorClickable) {
                     // Do nothing
-                } else if (viewPager.getCurrentItem() < fragmentsList.size() - 2) {
+                } else if (viewPager.getCurrentItem() < fragmentsList.size() - 1) {
                     viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
                 } else {
                     viewPager.setCurrentItem(0, true);

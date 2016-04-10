@@ -4,6 +4,12 @@
                 android:layout_height="wrap_content"
                 android:background="#222222">
 
+    <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+    </com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager>
+
     <ImageView
         android:id="@+id/close_button"
         android:layout_width="wrap_content"
@@ -13,12 +19,6 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/feature_pager_close_white"/>
-
-    <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
-        android:id="@+id/view_pager"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-    </com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager>
 
     <LinearLayout
         android:id="@+id/bottom"
