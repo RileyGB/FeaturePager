@@ -51,6 +51,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected boolean baseProgressButtonEnabled = true;
     protected boolean progressButtonEnabled = true;
     protected boolean isStatusBarVisible = false;
+    protected boolean isIndicatorClickable = true;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
     protected int pageNumber;
@@ -63,6 +64,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected View skipButton;
     protected View nextButton;
     protected View doneButton;
+    protected ImageButton closeButton;
     protected View customBackgroundView;
     protected FrameLayout backgroundFrame;
 
@@ -82,6 +84,8 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     public abstract void onNextClicked(int pageIndex);
 
     public abstract void onDoneClicked(int pageIndex);
+
+    public abstract void onCloseButtonClicked(int pageIndex);
 
     public abstract void onPageChanged(int pageIndex);
 
@@ -145,6 +149,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         nextButton = findViewById(R.id.next);
         backgroundFrame = (FrameLayout) findViewById(R.id.background);
         doneButton = findViewById(R.id.done);
+        closeButton = (ImageButton) findViewById(R.id.close_button);
     }
 
     private void initializePagerAdapter() {
@@ -157,6 +162,20 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         setSkipButtonClickListener();
         setNextButtonClickListener();
         setDoneButtonClickListener();
+        setCloseButtonClickListener();
+    }
+
+    protected void setCloseButtonClickListener() {
+        if(closeButton == null) {
+            return;
+        }
+
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onCloseButtonClicked(viewPager.getCurrentItem());
+            }
+        });
     }
 
     private void restoreLockStateFromBundle(Bundle savedInstanceState) {
@@ -254,7 +273,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         if (pageNumber == 1) {
             setProgressButtonEnabled(progressButtonEnabled);
         } else {
-            initController();
+            initializeIndicator();
         }
     }
 
@@ -272,12 +291,17 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         viewPager.setLockPage(savedInstanceState.getInt("lockPage"));
     }
 
-    private void initController() {
+    private void initializeIndicator() {
         if (indicatorController == null) {
             indicatorController = new DefaultIndicatorController();
         }
 
         FrameLayout indicatorContainer = (FrameLayout) findViewById(R.id.indicator_container);
+
+        if (indicatorContainer == null) {
+            return;
+        }
+
         indicatorContainer.addView(indicatorController.newInstance(this));
         indicatorController.initialize(pageNumber);
 
@@ -287,10 +311,25 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         if (unselectedIndicatorColor != DEFAULT_COLOR) {
             indicatorController.setUnselectedIndicatorColor(unselectedIndicatorColor);
         }
+
+        indicatorContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //noinspection StatementWithEmptyBody
+                if (!isIndicatorClickable) {
+                    // Do nothing
+                } else if (viewPager.getCurrentItem() < fragmentsList.size() - 2) {
+                    viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
+                } else {
+                    viewPager.setCurrentItem(0, true);
+                }
+            }
+        });
     }
 
     /**
      * Adds a fragment to the view pager
+     *
      * @param fragment
      */
     public void addPage(@NonNull Fragment fragment) {
@@ -594,6 +633,15 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
                 indicatorController.setUnselectedIndicatorColor(unselectedIndicatorColor);
             }
         }
+    }
+
+    /**
+     * Determines whether the indicator should be clickable
+     *
+     * @param indicatorClickable
+     */
+    public void setIndicatorClickable(boolean indicatorClickable) {
+        isIndicatorClickable = indicatorClickable;
     }
 
     /**

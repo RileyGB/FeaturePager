@@ -138,7 +138,7 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void fadeTransformTitle(View parentView, float absPosition) {
-        View titleTextView = parentView.findViewById(R.id.title);
+        View titleTextView = parentView.findViewById(R.id.feature_pager_title);
 
         if (titleTextView != null) {
             titleTextView.setAlpha(1.0f - absPosition);
@@ -146,7 +146,7 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void fadeTransformDescription(View parentView, float absPosition) {
-        View descriptionTextView = parentView.findViewById(R.id.description);
+        View descriptionTextView = parentView.findViewById(R.id.feature_pager_description);
 
         if (descriptionTextView != null) {
             descriptionTextView.setAlpha(1.0f - absPosition);
@@ -154,7 +154,7 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void fadeTransformImage(View parentView, float absPosition) {
-        View imageView = parentView.findViewById(R.id.image);
+        View imageView = parentView.findViewById(R.id.feature_pager_image);
 
         if (imageView != null) {
             imageView.setAlpha(1.0f - absPosition);
@@ -172,15 +172,15 @@ public class ViewPageTransformer implements ViewPager.PageTransformer {
     }
 
     private void setAllViewsVisible(View parentView) {
-        setViewVisible(parentView.findViewById(R.id.title));
-        setViewVisible(parentView.findViewById(R.id.description));
-        setViewVisible(parentView.findViewById(R.id.image));
+        setViewVisible(parentView.findViewById(R.id.feature_pager_title));
+        setViewVisible(parentView.findViewById(R.id.feature_pager_description));
+        setViewVisible(parentView.findViewById(R.id.feature_pager_image));
     }
 
     private void setAllViewsInvisible(View parentView) {
-        setViewInvisible(parentView.findViewById(R.id.title));
-        setViewInvisible(parentView.findViewById(R.id.description));
-        setViewInvisible(parentView.findViewById(R.id.image));
+        setViewInvisible(parentView.findViewById(R.id.feature_pager_title));
+        setViewInvisible(parentView.findViewById(R.id.feature_pager_description));
+        setViewInvisible(parentView.findViewById(R.id.feature_pager_image));
     }
 
     private void setViewVisible(View view) {

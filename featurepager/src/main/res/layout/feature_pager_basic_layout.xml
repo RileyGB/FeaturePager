@@ -4,6 +4,16 @@
                 android:layout_height="wrap_content"
                 android:background="#222222">
 
+    <ImageButton
+        android:id="@+id/close_button"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/feature_pager_close_white"/>
+
     <com.SearingMedia.featurepager.viewpager.FeaturePagerViewPager
         android:id="@+id/view_pager"
         android:layout_width="fill_parent"
@@ -50,15 +60,15 @@
                 android:textColor="#ffffff"/>
 
             <ImageButton
+                android:id="@+id/next"
+                style="?attr/borderlessButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                style="?attr/borderlessButtonStyle"
-                android:id="@+id/next"
                 android:layout_gravity="right"
-                android:minWidth="100dp"
                 android:layout_marginRight="8dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_navigate_next_white_24dp" />
+                android:minWidth="100dp"
+                android:src="@drawable/ic_navigate_next_white_24dp"/>
 
             <Button
                 android:id="@+id/done"
@@ -70,9 +80,9 @@
                 android:background="@null"
                 android:minWidth="100dp"
                 android:paddingRight="16dp"
-                android:visibility="gone"
                 android:text="@string/done_button"
-                android:textColor="#ffffff"/>
+                android:textColor="#ffffff"
+                android:visibility="gone"/>
         </FrameLayout>
     </LinearLayout>
 </RelativeLayout>

@@ -17,7 +17,7 @@ import com.SearingMedia.featurepager.R;
 public class FeaturePagerFragment extends Fragment {
     // Constants
     private static final String ARG_TITLE = "title";
-    private static final String ARG_DESC = "desc";
+    private static final String ARG_DESCRIPTION = "description";
     private static final String ARG_DRAWABLE = "drawable";
 
     // Variables
@@ -40,7 +40,7 @@ public class FeaturePagerFragment extends Fragment {
 
         Bundle bundle = new Bundle();
         bundle.putCharSequence(ARG_TITLE, title);
-        bundle.putCharSequence(ARG_DESC, description);
+        bundle.putCharSequence(ARG_DESCRIPTION, description);
         bundle.putInt(ARG_DRAWABLE, imageDrawable);
         featurePagerFragment.setArguments(bundle);
 
@@ -57,7 +57,7 @@ public class FeaturePagerFragment extends Fragment {
         if (getArguments() != null && getArguments().size() != 0) {
             drawableResId = getArguments().getInt(ARG_DRAWABLE);
             title = getArguments().getCharSequence(ARG_TITLE);
-            description = getArguments().getCharSequence(ARG_DESC);
+            description = getArguments().getCharSequence(ARG_DESCRIPTION);
         }
     }
 
@@ -65,10 +65,10 @@ public class FeaturePagerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View fragmentView = inflater.inflate(R.layout.feature_pager_fragment, container, false);
-        TextView titleTextView = (TextView) fragmentView.findViewById(R.id.title);
-        TextView descriptionTextView = (TextView) fragmentView.findViewById(R.id.description);
-        ImageView imageView = (ImageView) fragmentView.findViewById(R.id.image);
-        LinearLayout mainLinearLayout = (LinearLayout) fragmentView.findViewById(R.id.main);
+        TextView titleTextView = (TextView) fragmentView.findViewById(R.id.feature_pager_title);
+        TextView descriptionTextView = (TextView) fragmentView.findViewById(R.id.feature_pager_description);
+        ImageView imageView = (ImageView) fragmentView.findViewById(R.id.feature_pager_image);
+        LinearLayout mainLinearLayout = (LinearLayout) fragmentView.findViewById(R.id.feature_pager_fragment_container);
 
         titleTextView.setText(title);
         descriptionTextView.setText(description);
