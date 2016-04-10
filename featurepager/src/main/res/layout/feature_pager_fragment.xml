@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:id="@+id/feature_pager_fragment_container"
               xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_weight="10"
@@ -25,27 +26,37 @@
             android:paddingRight="16dp"/>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/feature_pager_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="start|bottom"
-        android:layout_weight="1"
-        android:gravity="start"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:textColor="@android:color/white"
-        android:textSize="28sp"/>
+        android:layout_weight="2"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/feature_pager_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start"
-        android:layout_weight="1"
-        android:gravity="start"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"/>
+        <TextView
+            android:id="@+id/feature_pager_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|bottom"
+            android:gravity="start"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:textColor="@android:color/white"
+            android:textSize="28sp"
+            tools:text="Title"
+            tools:textColor="@android:color/black"/>
+
+        <TextView
+            android:id="@+id/feature_pager_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start"
+            android:layout_marginTop="10dp"
+            android:gravity="start"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            tools:text="A longer description about this feature."
+            tools:textColor="@android:color/black"/>
+    </LinearLayout>
 </LinearLayout>
