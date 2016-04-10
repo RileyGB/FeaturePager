@@ -53,7 +53,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected boolean isStatusBarVisible = false;
     protected int selectedIndicatorColor = DEFAULT_COLOR;
     protected int unselectedIndicatorColor = DEFAULT_COLOR;
-    protected int fragmentNumber;
+    protected int pageNumber;
     protected int savedCurrentItem;
     protected List<Fragment> fragmentsList = new Vector<>();
     protected List<Integer> backgroundColorList;
@@ -77,13 +77,13 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public abstract void init(@Nullable Bundle savedInstanceState);
 
-    public abstract void onSkipClicked(int fragmentIndex);
+    public abstract void onSkipClicked(int pageIndex);
 
-    public abstract void onNextClicked(int fragmentIndex);
+    public abstract void onNextClicked(int pageIndex);
 
-    public abstract void onDoneClicked(int fragmentIndex);
+    public abstract void onDoneClicked(int pageIndex);
 
-    public abstract void onPageChanged(int fragmentIndex);
+    public abstract void onPageChanged(int pageIndex);
 
     // **********************************
     // Lifecycle
@@ -220,7 +220,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                if (fragmentNumber > 1) {
+                if (pageNumber > 1) {
                     indicatorController.selectPosition(position);
                 }
 
@@ -249,9 +249,9 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     private void initializeFragments() {
-        fragmentNumber = fragmentsList.size();
+        pageNumber = fragmentsList.size();
 
-        if (fragmentNumber == 1) {
+        if (pageNumber == 1) {
             setProgressButtonEnabled(progressButtonEnabled);
         } else {
             initController();
@@ -279,7 +279,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
         FrameLayout indicatorContainer = (FrameLayout) findViewById(R.id.indicator_container);
         indicatorContainer.addView(indicatorController.newInstance(this));
-        indicatorController.initialize(fragmentNumber);
+        indicatorController.initialize(pageNumber);
 
         if (selectedIndicatorColor != DEFAULT_COLOR) {
             indicatorController.setSelectedIndicatorColor(selectedIndicatorColor);
@@ -289,7 +289,11 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         }
     }
 
-    public void addFragment(@NonNull Fragment fragment) {
+    /**
+     * Adds a fragment to the view pager
+     * @param fragment
+     */
+    public void addPage(@NonNull Fragment fragment) {
         fragmentsList.add(fragment);
 
         featurePagerAdapter.notifyDataSetChanged();
@@ -338,7 +342,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             setViewVisible(nextButton, false);
             setViewVisible(doneButton, true);
         } else if (progressButtonEnabled) {
-            if (viewPager.getCurrentItem() == fragmentNumber - 1) {
+            if (viewPager.getCurrentItem() == pageNumber - 1) {
                 setViewVisible(nextButton, false);
                 setViewVisible(doneButton, true);
             } else {
