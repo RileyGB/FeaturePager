@@ -43,26 +43,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_gravity="center"
+                android:background="?android:attr/selectableItemBackground"
                 />
 
             <ImageButton
+                android:id="@+id/next"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:id="@+id/next"
                 android:layout_gravity="right"
                 android:layout_marginRight="16dp"
-                android:src="@drawable/ic_arrow_forward_white_24px" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_forward_white_24px"/>
 
             <ImageButton
                 android:id="@+id/done"
                 android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:layout_gravity="right"
-                android:visibility="gone"
                 android:layout_marginRight="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_done_white_24px"/>
+                android:src="@drawable/ic_done_white_24px"
+                android:visibility="gone"/>
 
         </FrameLayout>
 

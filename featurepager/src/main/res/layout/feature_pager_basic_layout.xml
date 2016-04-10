@@ -18,6 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
+        android:background="?android:attr/selectableItemBackground"
         android:src="@drawable/feature_pager_close_white"/>
 
     <LinearLayout
