@@ -61,6 +61,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     protected ArgbEvaluator argbEvaluator = new ArgbEvaluator();
 
     // Views
+    protected TextView titleTextView;
     protected View skipButton;
     protected View nextButton;
     protected View doneButton;
@@ -145,6 +146,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     // UI
     // **********************************
     private void bindViews() {
+        titleTextView = (TextView) findViewById(R.id.title_text);
         skipButton = findViewById(R.id.skip);
         nextButton = findViewById(R.id.next);
         backgroundFrame = (FrameLayout) findViewById(R.id.background);
@@ -166,7 +168,7 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
     }
 
     protected void setCloseButtonClickListener() {
-        if(closeButton == null) {
+        if (closeButton == null) {
             return;
         }
 
@@ -361,6 +363,12 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
             view.setVisibility(View.VISIBLE);
         } else {
             view.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public void setTitle(CharSequence title) {
+        if(title != null) {
+            titleTextView.setText(title);
         }
     }
 
