@@ -13,7 +13,7 @@ ext {
     siteUrl = 'https://github.com/RileyGB/FeaturePager'
     gitUrl = 'https://github.com/RileyGB/FeaturePager.git'
 
-    libraryVersion = '0.4.0'
+    libraryVersion = '0.4.1'
 
     developerId = 'rackerman'
     developerName = 'Riley Ackerman'
@@ -32,7 +32,7 @@ android {
         minSdkVersion 11
         targetSdkVersion 23
         versionCode 1
-        versionName "0.3.9"
+        versionName "0.4.1"
     }
     buildTypes {
         release {
