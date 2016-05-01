@@ -78,6 +78,8 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public abstract void onPreCreate(@Nullable Bundle savedInstanceState);
 
+    public abstract void onPostCreate();
+
     public abstract void init(@Nullable Bundle savedInstanceState);
 
     public abstract void onSkipClicked(int pageIndex);
@@ -109,6 +111,8 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
         setScrollDurationFactor(DEFAULT_SCROLL_DURATION_FACTOR);
         init(savedInstanceState);
         initializeFragments();
+
+        onPostCreate();
     }
 
     @Override
