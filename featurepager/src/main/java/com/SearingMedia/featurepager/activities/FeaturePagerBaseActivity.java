@@ -92,13 +92,18 @@ public abstract class FeaturePagerBaseActivity extends AppCompatActivity {
 
     public abstract void onPageChanged(int pageIndex);
 
+    public abstract boolean shouldEnableFullScreenMode();
+
     // **********************************
     // Lifecycle
     // **********************************
     @Override
     final protected void onCreate(Bundle savedInstanceState) {
         onPreCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+        if(shouldEnableFullScreenMode()) {
+            requestWindowFeature(Window.FEATURE_NO_TITLE);
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
